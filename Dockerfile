@@ -6,7 +6,7 @@ EXPOSE 80
 EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-WORKDIR /src
+WORKDIR /
 COPY ["src/WeddingSite.Server/WeddingSite.Server.csproj", "src/WeddingSite.Server/"]
 COPY ["src/WeddingSite.Contracts/WeddingSite.Contracts.csproj", "src/WeddingSite.Contracts/"]
 COPY ["src/WeddingSite.Infrastructure/WeddingSite.Infrastructure.csproj", "src/WeddingSite.Infrastructure/"]
@@ -15,7 +15,7 @@ COPY ["src/WeddingSite.Domain/WeddingSite.Domain.csproj", "src/WeddingSite.Domai
 COPY ["src/WeddingSite.Client/WeddingSite.Client.csproj", "src/WeddingSite.Client/"]
 RUN dotnet restore "src/WeddingSite.Server/WeddingSite.Server.csproj"
 COPY . .
-WORKDIR "/src/src/WeddingSite.Server"
+WORKDIR "/src/WeddingSite.Server"
 RUN dotnet build "WeddingSite.Server.csproj" -c Release -o /app/build
 
 FROM build AS publish
