@@ -3,11 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeddingSite.Server", "WeddingSite\Server\WeddingSite.Server.csproj", "{2DEA00D9-5D4E-43BA-9F86-FE97A22ED57E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSite.Server", "src\WeddingSite.Server\WeddingSite.Server.csproj", "{2DEA00D9-5D4E-43BA-9F86-FE97A22ED57E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeddingSite.Client", "WeddingSite\Client\WeddingSite.Client.csproj", "{392E891D-BA12-4416-97CB-BBB95F7CC322}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSite.Client", "src\WeddingSite.Client\WeddingSite.Client.csproj", "{392E891D-BA12-4416-97CB-BBB95F7CC322}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeddingSite.Shared", "WeddingSite\Shared\WeddingSite.Shared.csproj", "{06A984A2-88BE-4358-B494-F38418123860}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSite.Contracts", "src\WeddingSite.Contracts\WeddingSite.Contracts.csproj", "{06A984A2-88BE-4358-B494-F38418123860}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSite.Application", "src\WeddingSite.Application\WeddingSite.Application.csproj", "{3B2212CE-0FC3-4EB1-A338-2668F521F253}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSite.Domain", "src\WeddingSite.Domain\WeddingSite.Domain.csproj", "{18BAD22E-84F4-447D-9382-673180A7F860}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSite.Infrastructure", "src\WeddingSite.Infrastructure\WeddingSite.Infrastructure.csproj", "{97751EBA-5BDA-449A-B3BA-AA010614BCBB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8F3CA59D-02D3-4F7B-88C8-BCC72C5110B9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1838519B-D21B-4F76-B027-DE58B8F64E32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeddingSIte.Tests.Unit", "test\WeddingSIte.Tests.Unit\WeddingSIte.Tests.Unit.csproj", "{16A27F77-9DF2-448C-89F6-B90EC6954768}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeddingSite.Tests.BlazorComponents", "WeddingSite.Tests.BlazorComponents\WeddingSite.Tests.BlazorComponents.csproj", "{0F8CC92E-6D40-46EC-A404-98C06A38742F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,9 +41,39 @@ Global
 		{06A984A2-88BE-4358-B494-F38418123860}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06A984A2-88BE-4358-B494-F38418123860}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06A984A2-88BE-4358-B494-F38418123860}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B2212CE-0FC3-4EB1-A338-2668F521F253}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B2212CE-0FC3-4EB1-A338-2668F521F253}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B2212CE-0FC3-4EB1-A338-2668F521F253}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B2212CE-0FC3-4EB1-A338-2668F521F253}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18BAD22E-84F4-447D-9382-673180A7F860}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18BAD22E-84F4-447D-9382-673180A7F860}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18BAD22E-84F4-447D-9382-673180A7F860}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18BAD22E-84F4-447D-9382-673180A7F860}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97751EBA-5BDA-449A-B3BA-AA010614BCBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97751EBA-5BDA-449A-B3BA-AA010614BCBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97751EBA-5BDA-449A-B3BA-AA010614BCBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97751EBA-5BDA-449A-B3BA-AA010614BCBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16A27F77-9DF2-448C-89F6-B90EC6954768}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16A27F77-9DF2-448C-89F6-B90EC6954768}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16A27F77-9DF2-448C-89F6-B90EC6954768}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16A27F77-9DF2-448C-89F6-B90EC6954768}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F8CC92E-6D40-46EC-A404-98C06A38742F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F8CC92E-6D40-46EC-A404-98C06A38742F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F8CC92E-6D40-46EC-A404-98C06A38742F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F8CC92E-6D40-46EC-A404-98C06A38742F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2DEA00D9-5D4E-43BA-9F86-FE97A22ED57E} = {8F3CA59D-02D3-4F7B-88C8-BCC72C5110B9}
+		{392E891D-BA12-4416-97CB-BBB95F7CC322} = {8F3CA59D-02D3-4F7B-88C8-BCC72C5110B9}
+		{06A984A2-88BE-4358-B494-F38418123860} = {8F3CA59D-02D3-4F7B-88C8-BCC72C5110B9}
+		{3B2212CE-0FC3-4EB1-A338-2668F521F253} = {8F3CA59D-02D3-4F7B-88C8-BCC72C5110B9}
+		{18BAD22E-84F4-447D-9382-673180A7F860} = {8F3CA59D-02D3-4F7B-88C8-BCC72C5110B9}
+		{97751EBA-5BDA-449A-B3BA-AA010614BCBB} = {8F3CA59D-02D3-4F7B-88C8-BCC72C5110B9}
+		{16A27F77-9DF2-448C-89F6-B90EC6954768} = {1838519B-D21B-4F76-B027-DE58B8F64E32}
+		{0F8CC92E-6D40-46EC-A404-98C06A38742F} = {1838519B-D21B-4F76-B027-DE58B8F64E32}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7563D305-394F-419C-A3BA-15988A73532B}
