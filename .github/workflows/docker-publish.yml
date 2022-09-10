@@ -88,6 +88,7 @@ jobs:
         run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
 
   Deploy:
+    needs: Publish_Container
     runs-on: ubuntu-latest
     environment: Home NAS
 
