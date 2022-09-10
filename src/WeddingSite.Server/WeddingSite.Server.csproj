@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\WeddingSite.Infrastructure\WeddingSite.Infrastructure.csproj" />
-    <ProjectReference Include="..\Client\WeddingSite.Client.csproj" />
-    <ProjectReference Include="..\Shared\WeddingSite.Contracts.csproj" />
+    <ProjectReference Include="..\WeddingSite.Client\WeddingSite.Client.csproj" />
+    <ProjectReference Include="..\WeddingSite.Contracts\WeddingSite.Contracts.csproj" />
+    <ProjectReference Include="..\WeddingSite.Infrastructure\WeddingSite.Infrastructure.csproj" />
   </ItemGroup>
 
 
