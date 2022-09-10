@@ -113,7 +113,11 @@ jobs:
           SSH_PORT: ${{ secrets.PORT }}
 
       - name: Pull newest image
-        run: ssh nas 'sudo docker-compose pull'
+        run: ssh nas 'echo $USER_PASS | sudo -S docker-compose pull'
+        env:
+          USER_PASS: ${{ secrets.PASS }}
 
       - name: Docker Compose Up
-        run: ssh nas 'sudo docker-compose up -d'
+        run: ssh nas 'echo $PASS | sudo -S docker-compose up -d'
+        env:
+          USER_PASS: ${{ secrets.PASS }}
