@@ -113,7 +113,7 @@ jobs:
           SSH_PORT: ${{ secrets.PORT }}
 
       - name: Echo
-        run ssh nas 'echo "Hello world!"'
+        run: ssh nas 'echo "Hello world!"'
 
       - name: Pull newest image
         run: ssh nas 'sudo docker-compose pull'
