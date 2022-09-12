@@ -1,7 +1,7 @@
 ﻿using WeddingSite.Domain.Entities;
 using WeddingSite.Infrastructure.DataAccess.Abstractions;
-using WeddingSite.Infrastructure.Repositories.Abstrations;
 using WeddingSite.Infrastructure.Extensions;
+using WeddingSite.Application.Infrastructure;
 
 namespace WeddingSite.Infrastructure.Repositories;
 internal class GuestRepository : IGuestRepository

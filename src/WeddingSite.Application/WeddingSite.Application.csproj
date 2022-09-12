@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WeddingSite.Contracts\WeddingSite.Contracts.csproj" />
     <ProjectReference Include="..\WeddingSite.Domain\WeddingSite.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Convey.CQRS.Queries" Version="1.0.541" />
   </ItemGroup>
 
 </Project>

@@ -9,6 +9,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using WeddingSite.Application.Infrastructure;
+using WeddingSite.Infrastructure.DataAccess;
+using WeddingSite.Infrastructure.DataAccess.Abstractions;
+using WeddingSite.Infrastructure.Repositories;
+
 namespace WeddingSite.Infrastructure.Extensions;
 public static class ServiceCollectionExtensions
 {
@@ -19,6 +24,9 @@ public static class ServiceCollectionExtensions
             var connectionString = config.GetConnectionString("MongoDb") ?? string.Empty;
             return new MongoClient(connectionString);
         });
+
+        services.AddTransient<IGuestDataAccess, MongoGuestDataAccess>();
+        services.AddTransient<IGuestRepository, GuestRepository>();
 
         return services;
     }
