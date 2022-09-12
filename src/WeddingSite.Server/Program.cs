@@ -1,4 +1,8 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using WeddingSite.Infrastructure.Extensions;
+using WeddingSite.Server.Endpoints;
+using Convey;
+using Convey.CQRS.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,12 +11,27 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
+builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddConvey()
+    .AddQueryHandlers()
+    .AddInMemoryQueryDispatcher();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
+
+    app.MapSwagger();
+    app.UseSwaggerUI();
+
 }
 else
 {
@@ -21,16 +40,18 @@ else
     app.UseHsts();
 }
 
+app.MapGuestEndpoints();
+
 app.UseHttpsRedirection();
 
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
+app.MapControllers();
 
 app.UseRouting();
 
 
 app.MapRazorPages();
-app.MapControllers();
 app.MapFallbackToFile("index.html");
 
 app.Run();

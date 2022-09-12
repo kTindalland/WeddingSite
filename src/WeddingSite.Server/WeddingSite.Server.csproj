@@ -7,11 +7,16 @@
     <UserSecretsId>77cf5ad4-ba6a-4f31-9bed-1e4d78b907da</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
+	<DockerfileFile>..\..\Dockerfile</DockerfileFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Convey.CQRS.Queries" Version="1.0.541" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.6" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
