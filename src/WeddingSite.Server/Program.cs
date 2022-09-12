@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.ResponseCompression;
 using WeddingSite.Infrastructure.Extensions;
+using WeddingSite.Server.Endpoints;
+using Convey;
+using Convey.CQRS.Queries;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,12 +13,25 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.AddConvey()
+    .AddQueryHandlers()
+    .AddInMemoryQueryDispatcher();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
+
+    app.MapSwagger();
+    app.UseSwaggerUI();
+
 }
 else
 {
@@ -23,6 +39,8 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.MapGuestEndpoints();
 
 app.UseHttpsRedirection();
 
@@ -33,7 +51,6 @@ app.UseRouting();
 
 
 app.MapRazorPages();
-app.MapControllers();
 app.MapFallbackToFile("index.html");
 
 app.Run();
