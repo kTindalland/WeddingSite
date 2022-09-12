@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace WeddingSite.Infrastructure.Items;
 
@@ -6,7 +7,7 @@ namespace WeddingSite.Infrastructure.Items;
 internal class Guest
 {
     [BsonId]
-    public int Id { get; set; }
+    public ObjectId Id { get; set; }
 
     [BsonElement("name")]
     public string Name { get; set; } = string.Empty;

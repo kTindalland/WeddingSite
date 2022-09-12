@@ -11,7 +11,10 @@ public static class GuestEndpoints
 {
     public static WebApplication MapGuestEndpoints(this WebApplication app)
     {
-        app.MapGet("/api/guests/all", GetAllGuestsAsync);
+        app.MapGet("/api/guests/all", GetAllGuestsAsync)
+            .Produces<List<GuestDto>>(200)
+            .WithName("Get All Guests")
+            .WithTags("Guests");
 
         return app;
     }

@@ -7,7 +7,7 @@ internal static class GuestExtensions
     {
         return new Guest()
         {
-            Id = guest.Id,
+            Id = guest.Id.ToString(),
             Name = guest.Name
         };
     }
