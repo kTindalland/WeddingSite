@@ -3,6 +3,7 @@ using WeddingSite.Infrastructure.Extensions;
 using WeddingSite.Server.Endpoints;
 using Convey;
 using Convey.CQRS.Queries;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,9 +21,18 @@ builder.Services.AddConvey()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Logging.ClearProviders();
+
+
+
+builder.Logging.AddSerilog();
+
+builder.Host.UseSerilog((cxt, lc) =>
+{
+    lc.ReadFrom.Configuration(cxt.Configuration);
+});
+
 var app = builder.Build();
-
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -49,7 +59,6 @@ app.UseStaticFiles();
 app.MapControllers();
 
 app.UseRouting();
-
 
 app.MapRazorPages();
 app.MapFallbackToFile("index.html");
