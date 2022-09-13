@@ -27,6 +27,8 @@ builder.Logging.ClearProviders();
 
 builder.Logging.AddSerilog();
 
+var debug = builder.Configuration.GetDebugView();
+
 builder.Host.UseSerilog((cxt, lc) =>
 {
     lc.ReadFrom.Configuration(cxt.Configuration);
