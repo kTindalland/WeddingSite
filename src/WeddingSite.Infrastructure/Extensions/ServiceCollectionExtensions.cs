@@ -1,18 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 using MongoDB.Driver;
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using WeddingSite.Application.Infrastructure;
 using WeddingSite.Infrastructure.DataAccess;
 using WeddingSite.Infrastructure.DataAccess.Abstractions;
 using WeddingSite.Infrastructure.Repositories;
+using WeddingSite.Infrastructure.Services;
 
 namespace WeddingSite.Infrastructure.Extensions;
 public static class ServiceCollectionExtensions
@@ -29,6 +22,8 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IGuestRepository, GuestRepository>();
         services.AddTransient<IInvitationDataAccess, MongoInvitationDataAccess>();
         services.AddTransient<IInvitationRepository, InvitationRepository>();
+
+        services.AddTransient<ITokenService, JwtTokenService>();
 
         return services;
     }

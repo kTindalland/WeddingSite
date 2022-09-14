@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Mvc;
 
+using WeddingSite.Application.Infrastructure;
 using WeddingSite.Application.Queries;
 
 namespace WeddingSite.Server.Endpoints;
@@ -11,7 +12,8 @@ public static class AuthenticationEndpoints
     {
 
         app.MapPost("api/auth/get-token", GetAuthToken)
-            .Produces(200)
+            .Produces<string>(200)
+            .Produces<string>(404)
             .WithName("Get Token")
             .WithTags("Authentication");
 
@@ -20,6 +22,7 @@ public static class AuthenticationEndpoints
 
     private async static Task<IResult> GetAuthToken(
         [FromServices] IQueryDispatcher queryDispatcher,
+        [FromServices] ITokenService tokenService,
         [FromBody] string passphrase)
     {
         var getInvitationQuery = new GetInvitation()
@@ -33,6 +36,8 @@ public static class AuthenticationEndpoints
             return Results.NotFound(passphrase);
         }
 
-        return Results.Ok(invitation);
+        var token = tokenService.CreateToken(invitation);
+
+        return Results.Ok(token);
     }
 }
