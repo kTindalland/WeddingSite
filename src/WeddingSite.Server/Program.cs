@@ -53,6 +53,7 @@ else
 }
 
 app.MapGuestEndpoints();
+app.MapAuthenticationEndpoints();
 
 app.UseHttpsRedirection();
 
