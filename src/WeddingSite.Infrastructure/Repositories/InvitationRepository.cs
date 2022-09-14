@@ -13,7 +13,7 @@ internal class InvitationRepository : IInvitationRepository
         _invitationDataAccess = invitationDataAccess;
     }
 
-    public async Task<IInvitation?> GetInvitation(string passphrase)
+    public async Task<IInvitation?> GetInvitationAsync(string passphrase)
     {
         var invitation = await _invitationDataAccess.GetInvitation(passphrase);
 

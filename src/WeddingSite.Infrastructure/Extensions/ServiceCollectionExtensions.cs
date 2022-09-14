@@ -27,6 +27,8 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<IGuestDataAccess, MongoGuestDataAccess>();
         services.AddTransient<IGuestRepository, GuestRepository>();
+        services.AddTransient<IInvitationDataAccess, MongoInvitationDataAccess>();
+        services.AddTransient<IInvitationRepository, InvitationRepository>();
 
         return services;
     }

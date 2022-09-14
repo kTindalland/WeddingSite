@@ -3,5 +3,5 @@
 namespace WeddingSite.Application.Infrastructure;
 public interface IInvitationRepository
 {
-    Task<IInvitation?> GetInvitation(string passphrase);
+    Task<IInvitation?> GetInvitationAsync(string passphrase);
 }
