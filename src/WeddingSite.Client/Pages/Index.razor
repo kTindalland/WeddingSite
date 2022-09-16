@@ -22,7 +22,7 @@
 
 <AuthorizeView>
     <Authorized>
-        The user is authorized
+        The user is authorized, hello @context.User.Claims.FirstOrDefault(u => u.Type == "guests")?.Value
         <button @onclick="ClearToken">Clear Token</button>
     </Authorized>
     <NotAuthorized>
@@ -45,19 +45,22 @@
             return;
         }
 
-        text = result;
+
         await TokenService.StoreTokenAsync(result);
 
+        await AuthStateProvider.RaiseAuthenticationStateChanged();
+
+        text = result;
         this.StateHasChanged();
-        AuthStateProvider.RaiseAuthenticationStateChanged();
     }
 
     private async Task ClearToken()
     {
         await TokenService.ClearTokenAsync();
 
+        
+        await AuthStateProvider.RaiseAuthenticationStateChanged();
         this.StateHasChanged();
-        AuthStateProvider.RaiseAuthenticationStateChanged();
     }
 
 }
