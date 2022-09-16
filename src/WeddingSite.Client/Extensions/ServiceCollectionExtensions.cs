@@ -8,6 +8,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddWeddingSiteServices(this IServiceCollection services)
     {
         services.AddTransient<IDataService, DataService>();
+        services.AddTransient<ITokenService, TokenService>();
 
         return services;
     }

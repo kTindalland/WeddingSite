@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using WeddingSite.Client.Services.Abstractions
 @inject IDataService DataService
+@inject ITokenService TokenService
 
 <PageTitle>Index</PageTitle>
 
@@ -12,6 +13,17 @@
 <hr />
 
 <p>@text</p>
+
+<hr />
+
+<AuthorizeView>
+    <Authorized>
+        The user is authorized
+    </Authorized>
+    <NotAuthorized>
+        The User is not authorized
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     private string passphraseValue = string.Empty;
@@ -28,8 +40,9 @@
         }
 
         text = result;
+        await TokenService.StoreTokenAsync(result);
 
-        StateHasChanged();
+        this.StateHasChanged();
     }
 
 }
