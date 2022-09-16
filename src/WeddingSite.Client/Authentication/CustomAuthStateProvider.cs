@@ -20,4 +20,10 @@ public class CustomAuthStateProvider : AuthenticationStateProvider
         var identity = await _tokenService.DecodeTokenAsync();
         return new AuthenticationState(new ClaimsPrincipal(identity));
     }
+
+    public void RaiseAuthenticationStateChanged()
+    {
+        var authState = GetAuthenticationStateAsync();
+        NotifyAuthenticationStateChanged(authState);
+    }
 }

@@ -16,6 +16,11 @@ public class TokenService : ITokenService
         _jsRuntime = jsRuntime;
     }
 
+    public async Task ClearTokenAsync()
+    {
+        await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", "weddingsitetoken");
+    }
+
     public async Task<ClaimsIdentity> DecodeTokenAsync()
     {
         var token = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", "weddingsitetoken");

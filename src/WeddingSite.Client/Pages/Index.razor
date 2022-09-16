@@ -1,14 +1,18 @@
 ﻿@page "/"
 @using WeddingSite.Client.Services.Abstractions
+@using WeddingSite.Client.Authentication
+
 @inject IDataService DataService
 @inject ITokenService TokenService
+@inject NavigationManager NavManager
+@inject CustomAuthStateProvider AuthStateProvider
 
 <PageTitle>Index</PageTitle>
 
 <h1>Hello, world!</h1>
 
 <input type="text" placeholder="Passphrase" @bind-value="@passphraseValue" />
-<button @onclick="GetToken">Get Token</button>
+<input @onclick="GetToken" type="submit" value="Get Token" />
 
 <hr />
 
@@ -19,6 +23,7 @@
 <AuthorizeView>
     <Authorized>
         The user is authorized
+        <button @onclick="ClearToken">Clear Token</button>
     </Authorized>
     <NotAuthorized>
         The User is not authorized
@@ -37,12 +42,22 @@
         if (result == currentPassphrase)
         {
             text = "Couldn't find an invitation with that passphrase!";
+            return;
         }
 
         text = result;
         await TokenService.StoreTokenAsync(result);
 
         this.StateHasChanged();
+        AuthStateProvider.RaiseAuthenticationStateChanged();
+    }
+
+    private async Task ClearToken()
+    {
+        await TokenService.ClearTokenAsync();
+
+        this.StateHasChanged();
+        AuthStateProvider.RaiseAuthenticationStateChanged();
     }
 
 }
