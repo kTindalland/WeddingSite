@@ -21,7 +21,13 @@ builder.Services.AddHttpClient("WeddingSiteApi", client =>
     client.BaseAddress = new Uri(baseUri);
 });
 
-builder.Services.AddAuthorizationCore();
+builder.Services.AddAuthorizationCore(config =>
+{
+    config.AddPolicy("DiningGuest", policy =>
+    {
+        policy.RequireClaim("roles", "Manage");
+    });
+});
 
 builder.Services.AddSingleton<CustomAuthStateProvider>();
 builder.Services.AddSingleton<AuthenticationStateProvider>(provider => provider.GetRequiredService<CustomAuthStateProvider>());

@@ -1,0 +1,36 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using WeddingSite.Client.Models;
+@attribute [Authorize]
+@page "/rsvp"
+
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3 class="text-center">Rsvp</h3>
+
+@foreach(var name in _guestNames)
+{
+    <RsvpComponent Name="@name" />
+    <br />
+}
+
+
+@code {
+    private RsvpModel _model = new RsvpModel();
+
+    private List<string> _guestNames = new();
+    private string _debugText = string.Empty;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await GetClaimsPrincipalData();
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task GetClaimsPrincipalData()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        _guestNames = user.Claims.Where(c => c.Type == "guests").Select(c => c.Value).ToList();
+    }
+}

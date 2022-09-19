@@ -19,9 +19,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8F3CA59D-02D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1838519B-D21B-4F76-B027-DE58B8F64E32}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeddingSIte.Tests.Unit", "test\WeddingSIte.Tests.Unit\WeddingSIte.Tests.Unit.csproj", "{16A27F77-9DF2-448C-89F6-B90EC6954768}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSIte.Tests.Unit", "test\WeddingSIte.Tests.Unit\WeddingSIte.Tests.Unit.csproj", "{16A27F77-9DF2-448C-89F6-B90EC6954768}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeddingSite.Tests.BlazorComponents", "test\WeddingSite.Tests.BlazorComponents\WeddingSite.Tests.BlazorComponents.csproj", "{0F8CC92E-6D40-46EC-A404-98C06A38742F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSite.Tests.BlazorComponents", "test\WeddingSite.Tests.BlazorComponents\WeddingSite.Tests.BlazorComponents.csproj", "{0F8CC92E-6D40-46EC-A404-98C06A38742F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
