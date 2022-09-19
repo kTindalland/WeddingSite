@@ -86,38 +86,3 @@ jobs:
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
         run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
-
-  Deploy:
-    needs: Publish_Container
-    runs-on: ubuntu-latest
-    environment: Home NAS
-
-    steps:
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh/
-          echo "$SSH_KEY" > ~/.ssh/nas.key
-          chmod 600 ~/.ssh/nas.key
-          cat >>~/.ssh/config <<END
-          Host nas
-            HostName $SSH_HOST
-            User $SSH_USER
-            IdentityFile ~/.ssh/nas.key
-            Port $SSH_PORT
-            StrictHostKeyChecking no
-          END
-        env:
-          SSH_USER: ${{ secrets.USER }}
-          SSH_KEY: ${{ secrets.KEY }}
-          SSH_HOST: ${{ secrets.HOST }}
-          SSH_PORT: ${{ secrets.PORT }}
-
-      - name: Pull newest image
-        run: ssh nas 'echo "$USER_PASS" | sudo -S /usr/local/bin/docker-compose pull'
-        env:
-          USER_PASS: ${{ secrets.PASS }}
-
-      - name: Docker Compose Up
-        run: ssh nas 'echo "$USER_PASS" | sudo -S /usr/local/bin/docker-compose up -d'
-        env:
-          USER_PASS: ${{ secrets.PASS }}
