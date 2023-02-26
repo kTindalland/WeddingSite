@@ -1,20 +1,30 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using WeddingSite.Client.Extensions;
-
 using WeddingSite.Client;
 using WeddingSite.Client.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
+using Serilog;
+using Serilog.Core;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
+var levelSwitch = new LoggingLevelSwitch();
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.ControlledBy(levelSwitch)
+    .WriteTo.BrowserHttp($"{builder.HostEnvironment.BaseAddress}ingest", controlLevelSwitch: levelSwitch)
+    .ReadFrom.Configuration(builder.Configuration)
+    .CreateLogger();
+
+builder.Logging.AddSerilog(dispose: true);
+
+
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 var baseUri = string.Concat(builder.HostEnvironment.BaseAddress, "api/");
 
-Console.WriteLine(baseUri);
 
 builder.Services.AddHttpClient("WeddingSiteApi", client =>
 {

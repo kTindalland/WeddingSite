@@ -65,4 +65,6 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapFallbackToFile("index.html");
 
+app.UseSerilogIngestion();
+
 app.Run();

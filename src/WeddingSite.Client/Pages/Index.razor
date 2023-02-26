@@ -2,10 +2,12 @@
 @using WeddingSite.Client.Services.Abstractions
 @using WeddingSite.Client.Authentication
 
-@inject IDataService DataService
-@inject ITokenService TokenService
-@inject NavigationManager NavManager
-@inject CustomAuthStateProvider AuthStateProvider
+@inject IDataService _dataService
+@inject ITokenService _tokenService
+@inject NavigationManager _navManager
+@inject CustomAuthStateProvider _authStateProvider
+
+@inject ILogger<Index> _logger
 
 <PageTitle>Index</PageTitle>
 
@@ -13,12 +15,12 @@
 <p>This is version v0.2.5</p>
 <hr />
 
-<input type="text" placeholder="Passphrase" @bind-value="@passphraseValue" />
+<input type="text" placeholder="Passphrase" @bind-value="@_passphraseValue" />
 <input @onclick="GetToken" type="submit" value="Get Token" />
 
 <hr />
 
-<span style="white-space: pre-line;">@text</span>
+<span style="white-space: pre-line;">@_text</span>
 
 <hr />
 
@@ -33,35 +35,42 @@
 </AuthorizeView>
 
 @code {
-    private string passphraseValue = string.Empty;
-    private string text = string.Empty;
+    private string _passphraseValue = string.Empty;
+    private string _text = string.Empty;
 
     private async Task GetToken()
     {
-        var currentPassphrase = passphraseValue;
-        var result = await DataService.GetAuthTokenAsync(currentPassphrase);
+        
+        
+        var currentPassphrase = _passphraseValue;
+        _logger.LogInformation("Attempting to get a token using passphrase {Passphrase}", currentPassphrase);
+        
+        var result = await _dataService.GetAuthTokenAsync(currentPassphrase);
 
         if (result == currentPassphrase)
         {
-            text = "Couldn't find an invitation with that passphrase!";
+            _logger.LogWarning("Passphrase search failed! passphrase: {Passphrase}", currentPassphrase);
+            _text = "Couldn't find an invitation with that passphrase!";
             return;
         }
+        
+        _logger.LogInformation("Got token from passphrase! passphrase: {Passphrase}", currentPassphrase);
 
 
-        await TokenService.StoreTokenAsync(result);
+        await _tokenService.StoreTokenAsync(result);
 
-        await AuthStateProvider.RaiseAuthenticationStateChanged();
+        await _authStateProvider.RaiseAuthenticationStateChanged();
 
-        text = result;
+        _text = result;
         this.StateHasChanged();
     }
 
     private async Task ClearToken()
     {
-        await TokenService.ClearTokenAsync();
+        await _tokenService.ClearTokenAsync();
 
         
-        await AuthStateProvider.RaiseAuthenticationStateChanged();
+        await _authStateProvider.RaiseAuthenticationStateChanged();
         this.StateHasChanged();
     }
 

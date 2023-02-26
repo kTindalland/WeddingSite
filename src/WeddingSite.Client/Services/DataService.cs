@@ -17,13 +17,16 @@ public class DataService : IDataService
 
     public async Task<string> GetAuthTokenAsync(string passphrase)
     {
-        Console.WriteLine(_client.BaseAddress);
-        Console.WriteLine(passphrase);
-        var response = await _client.PostAsJsonAsync<string>("auth/get-token", passphrase);
-
-        // Will either be a token, or the passphrase given back if it wasn't found
-        var content = await response.Content.ReadFromJsonAsync<string>();
-
-        return content ?? "Error deserialising json.";
+        try
+        {
+            var response = await _client.PostAsJsonAsync<string>("auth/get-token", passphrase);
+            // Will either be a token, or the passphrase given back if it wasn't found
+            var content = await response.Content.ReadFromJsonAsync<string>();
+            return content ?? "Error deserialising json.";
+        }
+        catch (Exception)
+        {
+            return passphrase;
+        }
     }
 }
