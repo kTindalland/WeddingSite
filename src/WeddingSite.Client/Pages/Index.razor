@@ -6,42 +6,45 @@
 @inject ITokenService _tokenService
 @inject NavigationManager _navManager
 @inject CustomAuthStateProvider _authStateProvider
+@inject ISnackbar Snackbar
 
 @inject ILogger<Index> _logger
 
-<PageTitle>Index</PageTitle>
+<PageTitle>K&S Wedding - Login</PageTitle>
 
-<h1>Hello, world!</h1>
-<p>This is version v0.2.5</p>
-<hr />
+<MudPaper Class="pa-16 ma-2" Outlined="true">
+    <MudText Typo="Typo.h4">Passphrase Login</MudText>
+    <AuthorizeView>
+        <Authorized>
+            <MudAlert Severity="Severity.Info">
+                You're currently already logged in as @context.User.Claims.FirstOrDefault(u => u.Type == "guests")?.Value
+            </MudAlert>
+            <div class="d-flex pt-4">
+                <MudButton OnClick="ClearToken" Variant="Variant.Filled" Color="Color.Secondary" Class="mx-auto px-16">
+                    Log out
+                </MudButton>
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            
+            <MudForm>
+                <MudTextField T="string" Label="Passphrase" @bind-Value="@_passphraseValue"
+                              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Key"/>
 
-<input type="text" placeholder="Passphrase" @bind-value="@_passphraseValue" />
-<input @onclick="GetToken" type="submit" value="Get Token" />
-
-<hr />
-
-<span style="white-space: pre-line;">@_text</span>
-
-<hr />
-
-<AuthorizeView>
-    <Authorized>
-        The user is authorized, hello @context.User.Claims.FirstOrDefault(u => u.Type == "guests")?.Value
-        <button @onclick="ClearToken">Clear Token</button>
-    </Authorized>
-    <NotAuthorized>
-        The User is not authorized
-    </NotAuthorized>
-</AuthorizeView>
+                <div class="d-flex pt-4">
+                    <MudButton OnClick="GetToken" Variant="Variant.Filled" Color="Color.Primary" Class="mx-auto px-16">Login</MudButton>
+                </div>
+            </MudForm>
+            
+        </NotAuthorized>
+    </AuthorizeView>
+</MudPaper>
 
 @code {
     private string _passphraseValue = string.Empty;
-    private string _text = string.Empty;
 
     private async Task GetToken()
     {
-        
-        
         var currentPassphrase = _passphraseValue;
         _logger.LogInformation("Attempting to get a token using passphrase {Passphrase}", currentPassphrase);
         
@@ -50,27 +53,32 @@
         if (result == currentPassphrase)
         {
             _logger.LogWarning("Passphrase search failed! passphrase: {Passphrase}", currentPassphrase);
-            _text = "Couldn't find an invitation with that passphrase!";
+
+            Snackbar.Add($"An invitation with that passphrase wasn't found!", Severity.Error);
+            
             return;
         }
         
         _logger.LogInformation("Got token from passphrase! passphrase: {Passphrase}", currentPassphrase);
 
-
         await _tokenService.StoreTokenAsync(result);
 
         await _authStateProvider.RaiseAuthenticationStateChanged();
 
-        _text = result;
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        var name = authState.User.Claims.FirstOrDefault(u => u.Type == "guests")?.Value!;
+        Snackbar.Add($"Login Successful, hello {name}!", Severity.Success);
+
+        _passphraseValue = string.Empty;
         this.StateHasChanged();
     }
 
     private async Task ClearToken()
     {
         await _tokenService.ClearTokenAsync();
-
-        
         await _authStateProvider.RaiseAuthenticationStateChanged();
+
+        Snackbar.Add("Successfully Logged Out!", Severity.Info);
         this.StateHasChanged();
     }
 
