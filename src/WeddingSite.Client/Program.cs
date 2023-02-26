@@ -4,8 +4,10 @@ using WeddingSite.Client.Extensions;
 using WeddingSite.Client;
 using WeddingSite.Client.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
+using MudBlazor;
 using Serilog;
 using Serilog.Core;
+using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -43,5 +45,11 @@ builder.Services.AddSingleton<CustomAuthStateProvider>();
 builder.Services.AddSingleton<AuthenticationStateProvider>(provider => provider.GetRequiredService<CustomAuthStateProvider>());
 
 builder.Services.AddWeddingSiteServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
+
+    config.SnackbarConfiguration.ShowCloseIcon = true;
+});
 
 await builder.Build().RunAsync();
