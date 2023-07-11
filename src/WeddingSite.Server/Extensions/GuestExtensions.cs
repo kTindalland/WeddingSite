@@ -9,7 +9,9 @@ internal static class GuestExtensions
         return new GuestDto()
         {
             Id = domainObject.Id,
-            Name = domainObject.Name
+            Name = domainObject.Name,
+            RsvpSections = domainObject.RsvpSections,
+            RsvpData = domainObject.RsvpData
         };
     }
 }

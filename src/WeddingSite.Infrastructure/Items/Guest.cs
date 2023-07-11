@@ -11,4 +11,10 @@ internal class Guest
 
     [BsonElement("name")]
     public string Name { get; set; } = string.Empty;
+
+    [BsonElement("rsvpSections")]
+    public List<string> RsvpSections { get; set; } = new List<string>();
+    
+    [BsonElement("rsvpData")]
+    public Dictionary<string, string> RsvpData { get; set; } = new Dictionary<string, string>();
 }

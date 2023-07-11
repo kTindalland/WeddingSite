@@ -3,6 +3,7 @@ using System.Text;
 using System.Net.Http.Json;
 
 using WeddingSite.Client.Services.Abstractions;
+using WeddingSite.Contracts.DTOs;
 
 namespace WeddingSite.Client.Services;
 public class DataService : IDataService
@@ -27,6 +28,20 @@ public class DataService : IDataService
         catch (Exception)
         {
             return passphrase;
+        }
+    }
+
+    public async Task<GuestDto?> GetGuestAsync(string id)
+    {
+        try
+        {
+            var response = await _client.GetFromJsonAsync<GuestDto>($"guests?id={id}");
+            return response;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
     }
 }

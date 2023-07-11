@@ -1,5 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Authorization
 @using WeddingSite.Client.Models;
+@using WeddingSite.Client.Services.Abstractions
+@using WeddingSite.Contracts.DTOs
+@inject IDataService DataService
 @attribute [Authorize]
 @page "/rsvp"
 
@@ -7,9 +10,9 @@
 
 <h3 class="text-center">Rsvp</h3>
 
-@foreach(var name in _guestNames)
+@foreach(var guest in _guests)
 {
-    <RsvpComponent Name="@name" />
+    <RsvpComponent Name="@guest.Name" />
     <br />
 }
 
@@ -17,7 +20,7 @@
 @code {
     private RsvpModel _model = new RsvpModel();
 
-    private List<string> _guestNames = new();
+    private List<GuestDto> _guests = new List<GuestDto>();
     private string _debugText = string.Empty;
 
     protected override async Task OnParametersSetAsync()
@@ -31,6 +34,15 @@
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
-        _guestNames = user.Claims.Where(c => c.Type == "guests").Select(c => c.Value).ToList();
+        var guestIds = user.Claims.Where(c => c.Type == "guests").Select(c => c.Value).ToList();
+
+        foreach (var id in guestIds)
+        {
+            var guestDto = await DataService.GetGuestAsync(id);
+            
+            if (guestDto is null) continue;
+            
+            _guests.Add(guestDto);
+        }
     }
 }

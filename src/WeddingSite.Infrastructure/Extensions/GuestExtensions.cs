@@ -8,7 +8,9 @@ internal static class GuestExtensions
         return new Guest()
         {
             Id = guest.Id.ToString(),
-            Name = guest.Name
+            Name = guest.Name,
+            RsvpSections = guest.RsvpSections,
+            RsvpData = guest.RsvpData
         };
     }
 }

@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace WeddingSite.Domain.Entities.Abstractions;
 public interface IGuest
 {
-    public string Id { get; set; }
-    public string Name { get; set; }
+    string Id { get; set; }
+    string Name { get; set; }
+    List<string> RsvpSections { get; set; }
+    Dictionary<string, string> RsvpData { get; set; }
 }
