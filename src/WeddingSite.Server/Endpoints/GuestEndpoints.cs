@@ -16,6 +16,11 @@ public static class GuestEndpoints
             .WithName("Get All Guests")
             .WithTags("Guests");
 
+        app.MapGet("/api/guests", GetGuestAsync)
+            .Produces<GuestDto>()
+            .WithName("Get Guest")
+            .WithTags("Guests");
+
         return app;
     }
 
@@ -31,5 +36,14 @@ public static class GuestEndpoints
 
         var result = allGuests.Select(x => x.ToDto()).ToList();
         return Results.Ok(result);
+    }
+
+    private static async Task<IResult> GetGuestAsync(
+        [FromQuery] string id,
+        [FromServices] IQueryDispatcher queryDispatcher)
+    {
+        var guest = await queryDispatcher.QueryAsync(new GetGuest(id));
+
+        return guest is null ? Results.NotFound() : Results.Ok(guest.ToDto());
     }
 }

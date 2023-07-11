@@ -13,6 +13,13 @@ internal class GuestRepository : IGuestRepository
         _guestData = guestData;
     }
 
+    public async Task<Guest?> GetGuestAsync(string id, CancellationToken cancellationToken)
+    {
+        var guest = await _guestData.GetGuestAsync(id, cancellationToken);
+
+        return guest?.FromItem();
+    }
+
     public async Task<List<Guest>> GetAllAsync()
     {
         var guestItems = await _guestData.GetAllAsync();
