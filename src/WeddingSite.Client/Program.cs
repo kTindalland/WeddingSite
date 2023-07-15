@@ -39,6 +39,11 @@ builder.Services.AddAuthorizationCore(config =>
     {
         policy.RequireClaim("roles", "Manage");
     });
+    
+    config.AddPolicy("Admin", policy =>
+    {
+        policy.RequireClaim("roles", "admin");
+    });
 });
 
 builder.Services.AddSingleton<CustomAuthStateProvider>();

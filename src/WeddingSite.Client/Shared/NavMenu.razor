@@ -10,4 +10,13 @@
             </MudNavLink>
         </Authorized>
     </AuthorizeView>
+    <AuthorizeView Policy="Admin">
+        <Authorized>
+            <MudNavGroup Title="Admin" Icon="@Icons.Material.Outlined.Lock">
+                <MudNavLink Href="/status" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Outlined.Lightbulb">
+                    Status
+                </MudNavLink>
+            </MudNavGroup>
+        </Authorized>
+    </AuthorizeView>
 </MudNavMenu>
