@@ -49,7 +49,7 @@ builder.Host.UseSerilog((cxt, lc) =>
 
 var app = builder.Build();
 
-app.MapHealthChecks("/_health", new HealthCheckOptions()
+app.MapHealthChecks("/api/_health", new HealthCheckOptions()
 {
     Predicate = _ => true,
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse

@@ -1,0 +1,41 @@
+﻿@using HealthChecks.UI.Core
+<MudCard>
+    @if (ImageHref is not null)
+    {
+        <MudCardMedia Image="@ImageHref" />
+    }
+    <MudCardContent>
+        <MudText Typo="Typo.h5">@Name</MudText>
+        
+        @{
+            var colour = Color.Success;
+
+            if (HealthEntry.Status == UIHealthStatus.Degraded)
+            {
+                colour = Color.Warning;
+            }
+            else if (HealthEntry.Status == UIHealthStatus.Unhealthy)
+            {
+                colour = Color.Error;
+            }
+        }
+        
+        @if (HealthEntry.Status != UIHealthStatus.Healthy)
+        {
+            <MudText Typo="Typo.body2">@HealthEntry.Description</MudText>
+        }
+        <MudText Typo="Typo.body2" Color="@colour">@HealthEntry.Status</MudText>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter]
+    public string? ImageHref { get; set; }
+
+    [Parameter]
+    public UIHealthReportEntry HealthEntry { get; set; } = new UIHealthReportEntry();
+
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+}

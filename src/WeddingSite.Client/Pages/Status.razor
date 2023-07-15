@@ -1,0 +1,109 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using WeddingSite.Client.Services.Abstractions
+@using HealthChecks.UI.Core
+@using WeddingSite.Client.Components
+@using System.Timers
+
+@attribute [Authorize(Policy = "Admin")]
+@implements IDisposable
+
+@inject IDataService DataService
+
+@page "/status"
+
+<MudText Typo="Typo.h3" Color="Color.Default">Status</MudText>
+
+@if (_healthReport is null)
+{
+    <MudProgressLinear Color="Color.Secondary" Indeterminate="true" Class="my-7"/>
+}
+else
+{
+    <span>
+        <MudText Typo="Typo.h4" Color="Color.Default" Inline="true">Current Status:  
+            <MudText Typo="Typo.h4" Color="@_textColour" Inline="true">@_healthReport?.Status.ToString()</MudText>
+        </MudText>
+    </span>
+    
+    
+    
+    <MudGrid>
+        @foreach (var (name, healthReport) in _healthReport!.Entries)
+        {
+            string? image = null;
+
+            if (name == "mongodb")
+            {
+                image = "images/mongoDb.png";
+            }
+            else if (name == "applicationstatus")
+            {
+                image = "images/dotnet.jpg";
+            }
+            
+            <MudItem lg="6" md="12" sm="12" xs="12">
+                <StatusComponent Name="@name" HealthEntry="@healthReport" ImageHref="@image" />
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+
+    private UIHealthReport? _healthReport = null;
+    private Timer? _timer;
+    private Color _textColour = Color.Default;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateHealthReport();
+        
+        _timer = new Timer(10_000);
+        
+        _timer.Elapsed += async (s, e) =>
+        {
+            await UpdateHealthReport();
+            await InvokeAsync(StateHasChanged);
+        };
+        
+        _timer.Start();
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task<UIHealthReport?> GetHealth()
+    {
+        return await DataService.GetHealth();
+    }
+
+    private async Task UpdateHealthReport()
+    {
+        _healthReport = await GetHealth();
+        WorkOutColour();
+    }
+
+    private void WorkOutColour()
+    {
+        if (_healthReport is null) return;
+        
+        var colour = Color.Success;
+
+        if (_healthReport!.Status == UIHealthStatus.Degraded)
+        {
+            colour = Color.Warning;
+        }
+        else if (_healthReport!.Status == UIHealthStatus.Unhealthy)
+        {
+            colour = Color.Error;
+        }
+
+        _textColour = colour;
+    }
+    
+    public void Dispose()
+    {
+        _timer?.Stop();
+        _timer?.Dispose();
+    }
+
+}
