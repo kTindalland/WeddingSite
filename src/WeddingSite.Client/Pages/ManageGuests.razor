@@ -1,0 +1,76 @@
+﻿@page "/ManageGuests"
+@using WeddingSite.Contracts.DTOs
+@using WeddingSite.Client.Services.Abstractions
+@using System.Text.Json
+@inject ISnackbar Snackbar
+@inject IDataService DataService
+
+<MudText Typo="Typo.h3" Color="Color.Default">Manage Guests</MudText>
+
+@if (_loading)
+{
+    <MudProgressLinear Color="Color.Secondary" Indeterminate="true" Class="my-7"/>
+}
+else
+{
+    <MudTable Items="@_allGuests" Hover="true" CanCancelEdit="true" Dense="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">All Guests</MudText>
+            <MudSpacer />
+            <MudTextField T="string" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>Name</MudTh>
+            <MudTh>Rsvp Sections</MudTh>
+            <MudTh>Rsvp Data</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>
+                @{
+                    foreach (var rsvpSection in context.RsvpSections)
+                    {
+                        <MudChip Color="Color.Info">@rsvpSection</MudChip>
+                    }
+                }
+            </MudTd>
+            <MudTd>
+                @{
+                    var jsonText = JsonSerializer.Serialize(context.RsvpData);
+                }
+                @jsonText
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    private bool _loading = true;
+    private List<GuestDto> _allGuests = new List<GuestDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        var allGuestsResult = await DataService.GetAllGuestsAsync();
+
+        _allGuests = allGuestsResult.Match(
+            m =>
+            {
+                Console.WriteLine(m.Count);
+                return m;
+            },
+            err =>
+            {
+                Console.WriteLine(err.Message);
+                Snackbar.Add(err.Message, Severity.Error);
+                return new List<GuestDto>();
+            });
+
+        _loading = false;
+        
+        await base.OnInitializedAsync();
+        
+        this.StateHasChanged();
+    }
+
+}

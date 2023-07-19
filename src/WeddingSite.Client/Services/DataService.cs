@@ -1,8 +1,11 @@
-﻿using System.Net.Http.Json;
+﻿using System.Net;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using HealthChecks.UI.Core;
+using LanguageExt.Common;
+using MudBlazor;
 using WeddingSite.Client.Services.Abstractions;
 using WeddingSite.Contracts.DTOs;
 
@@ -43,6 +46,56 @@ public class DataService : IDataService
         {
             Console.WriteLine(e);
             throw;
+        }
+    }
+    
+    public async Task<Result<GuestDto>> CreateGuestAsync()
+    {
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, "guests/create");
+            var response = await _client.SendAsync(request);
+
+            return await MapResponseAsync<GuestDto>(response, "Something went wrong when trying to create the guest.");
+        }
+        catch (Exception ex)
+        {
+            return new Result<GuestDto>(ex);
+        }
+    }
+
+    public async Task<Result<List<GuestDto>>> GetAllGuestsAsync()
+    {
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "guests/all");
+            var response = await _client.SendAsync(request);
+
+            return await MapResponseAsync<List<GuestDto>>(response, "Something went wrong when getting all the guests.");
+        }
+        catch (Exception ex)
+        {
+            return new Result<List<GuestDto>>(ex);
+        }
+    }
+
+    private async Task<Result<T>> MapResponseAsync<T>(HttpResponseMessage response,
+        string defaultError = "Something went wrong.")
+    {
+        switch (response.StatusCode)
+        {
+            case HttpStatusCode.OK:
+                var deserializedObject =
+                    //await JsonSerializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync());
+                    Newtonsoft.Json.JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
+
+                return deserializedObject ?? new Result<T>(new Exception("Something went wrong during serialisation."));
+
+            case HttpStatusCode.BadRequest:
+                return new Result<T>(new Exception(await response.Content.ReadAsStringAsync()));
+
+            default:
+                return new Result<T>(new Exception(defaultError));
         }
     }
 
