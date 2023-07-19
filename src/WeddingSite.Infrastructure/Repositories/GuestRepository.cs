@@ -28,4 +28,14 @@ internal class GuestRepository : IGuestRepository
 
         return result;
     }
+
+    public async Task CreateGuestAsync(Guest newGuest, CancellationToken cancellationToken)
+    {
+        await _guestData.CreateGuest(newGuest.ToItem(), cancellationToken);
+    }
+
+    public async Task<string> GenerateDatabaseIdAsync()
+    {
+        return await _guestData.GenerateDatabaseIdAsync();
+    }
 }

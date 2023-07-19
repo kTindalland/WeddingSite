@@ -1,8 +1,6 @@
-﻿using Convey.CQRS.Queries;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using WeddingSite.Server.Extensions;
-using WeddingSite.Application.Queries;
+using WeddingSite.Application.Services.Interfaces;
 using WeddingSite.Contracts.DTOs;
 
 namespace WeddingSite.Server.Endpoints;
@@ -21,29 +19,51 @@ public static class GuestEndpoints
             .WithName("Get Guest")
             .WithTags("Guests");
 
+        app.MapPost("/api/guests/create", CreateGuest)
+            .Produces<GuestDto>()
+            .WithName("Create Guest")
+            .WithTags("Guests");
+
         return app;
     }
 
     private static async  Task<IResult> GetAllGuestsAsync(
-        [FromServices] IQueryDispatcher queryDispatcher)
+        [FromServices] IGuestService guestService,
+        CancellationToken cancellationToken)
     {
-        var allGuests = await queryDispatcher.QueryAsync(new GetAllGuests());
+        var guestsResult = await guestService.GetAllGuestsAsync(cancellationToken);
 
-        if (allGuests == null)
-        {
-            return Results.NotFound();
-        }
+        return guestsResult.Match(
+            m =>
+            {
+                if (m is null) return Results.NotFound();
 
-        var result = allGuests.Select(x => x.ToDto()).ToList();
-        return Results.Ok(result);
+                return Results.Ok(m.Select(x => x.ToDto()).ToList());
+            },
+            err => Results.BadRequest(err.Message));
     }
 
     private static async Task<IResult> GetGuestAsync(
         [FromQuery] string id,
-        [FromServices] IQueryDispatcher queryDispatcher)
+        [FromServices] IGuestService guestService,
+        CancellationToken cancellationToken)
     {
-        var guest = await queryDispatcher.QueryAsync(new GetGuest(id));
+        var guestResult = await guestService.GetGuestAsync(id, cancellationToken);
 
-        return guest is null ? Results.NotFound() : Results.Ok(guest.ToDto());
+        return guestResult.Match(
+            m => m is not null ? Results.Ok(m.ToDto()) : Results.NotFound(),
+            err => Results.BadRequest(err.Message));
+    }
+
+    private static async Task<IResult> CreateGuest(
+        [FromBody] GuestDto guestDto,
+        [FromServices] IGuestService guestService,
+        CancellationToken cancellationToken)
+    {
+        var createResult = await guestService.CreateGuestAsync(guestDto.FromDto(), cancellationToken);
+
+        return createResult.Match(
+            m => Results.Ok(m.ToDto()),
+            err => Results.BadRequest(err.Message));
     }
 }

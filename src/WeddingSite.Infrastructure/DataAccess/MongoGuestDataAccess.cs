@@ -26,4 +26,18 @@ internal class MongoGuestDataAccess : IGuestDataAccess
     {
         return (await _guestCollection.FindAsync(g => true)).ToList();
     }
+
+    public async Task CreateGuest(Guest newGuest, CancellationToken cancellationToken)
+    {
+        var existingGuest = await GetGuestAsync(newGuest.Id.ToString(), cancellationToken);
+
+        if (existingGuest is not null) throw new Exception("Guest with that ID already exists.");
+        
+        await _guestCollection.InsertOneAsync(newGuest, cancellationToken: cancellationToken);
+    }
+
+    public Task<string> GenerateDatabaseIdAsync()
+    {
+        return Task.FromResult(ObjectId.GenerateNewId().ToString());
+    }
 }
