@@ -14,4 +14,15 @@ internal static class GuestExtensions
             RsvpData = domainObject.RsvpData
         };
     }
+
+    internal static Guest FromDto(this GuestDto dto)
+    {
+        return new Guest()
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+            RsvpSections = dto.RsvpSections,
+            RsvpData = dto.RsvpData
+        };
+    }
 }

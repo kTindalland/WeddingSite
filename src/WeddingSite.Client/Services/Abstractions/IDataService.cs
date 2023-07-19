@@ -1,4 +1,5 @@
 ﻿using HealthChecks.UI.Core;
+using LanguageExt.Common;
 using WeddingSite.Contracts.DTOs;
 
 namespace WeddingSite.Client.Services.Abstractions;
@@ -9,4 +10,8 @@ public interface IDataService
     Task<GuestDto?> GetGuestAsync(string id);
 
     Task<UIHealthReport?> GetHealth();
+
+    Task<Result<List<GuestDto>>> GetAllGuestsAsync();
+
+    Task<Result<GuestDto>> CreateGuestAsync();
 }

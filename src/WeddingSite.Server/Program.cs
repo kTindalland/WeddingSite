@@ -1,12 +1,14 @@
 using WeddingSite.Infrastructure.Extensions;
 using WeddingSite.Server.Endpoints;
 using Convey;
+using Convey.CQRS.Commands;
 using Convey.CQRS.Queries;
 using HealthChecks.ApplicationStatus.DependencyInjection;
 using HealthChecks.Publisher.Seq;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
+using WeddingSite.Application.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,9 +31,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddConvey()
-    .AddQueryHandlers()
-    .AddInMemoryQueryDispatcher();
+builder.Services.AddApplication();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
