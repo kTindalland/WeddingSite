@@ -1,0 +1,16 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudText>This is the add guest dialog</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Close">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] 
+    MudDialogInstance? MudDialog { get; set; }
+    
+    void Close() => MudDialog?.Close(DialogResult.Ok(true));
+
+}
