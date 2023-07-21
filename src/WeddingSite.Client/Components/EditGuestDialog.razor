@@ -1,0 +1,25 @@
+﻿<MudDialog>
+    <DialogContent>
+        <MudText>This is the edit dialog</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Close">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] 
+    MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public string GuestName { get; set; } = string.Empty;
+    
+    void Close() => MudDialog?.Close(DialogResult.Ok(true));
+    
+    protected override void OnParametersSet()
+    {
+        MudDialog?.SetTitle(GuestName);
+        base.OnParametersSet();
+    }
+
+}

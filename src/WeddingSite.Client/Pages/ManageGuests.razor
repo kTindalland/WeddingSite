@@ -1,11 +1,18 @@
-﻿@page "/ManageGuests"
+﻿@page "/manageguests"
 @using WeddingSite.Contracts.DTOs
 @using WeddingSite.Client.Services.Abstractions
-@using System.Text.Json
+@using WeddingSite.Client.Components
 @inject ISnackbar Snackbar
 @inject IDataService DataService
+@inject IDialogService DialogService
 
-<MudText Typo="Typo.h3" Color="Color.Default">Manage Guests</MudText>
+<div class="d-flex flex-wrap align-stretch mt-2 mb-1">
+    <MudText Typo="Typo.h3" Color="Color.Default">Manage Guests</MudText>
+    <MudSpacer />
+    <MudTextField  @bind-Value="@_searchText" Label="Search for Name" Variant="Variant.Outlined"
+                   Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" Clearable="true" />
+</div>
+
 
 @if (_loading)
 {
@@ -13,40 +20,56 @@
 }
 else
 {
-    <MudTable Items="@_allGuests" Hover="true" CanCancelEdit="true" Dense="true">
-        <ToolBarContent>
-            <MudText Typo="Typo.h6">All Guests</MudText>
-            <MudSpacer />
-            <MudTextField T="string" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
-        </ToolBarContent>
-        <HeaderContent>
-            <MudTh>Name</MudTh>
-            <MudTh>Rsvp Sections</MudTh>
-            <MudTh>Rsvp Data</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd>@context.Name</MudTd>
-            <MudTd>
-                @{
-                    foreach (var rsvpSection in context.RsvpSections)
+    <MudText Typo="Typo.caption" Color="Color.Default">RSVP Sections</MudText>
+    
+    <MudChipSet @bind-SelectedChips="_selectedRsvpSectionChips" MultiSelection="true" Filter="true" Class="mb-1">
+        @foreach (var rsvpSection in _allGuests.SelectMany(x => x.RsvpSections).Distinct())
+        {
+            <MudChip Text="@rsvpSection" Default="true" Variant="Variant.Text" Color="Color.Info"></MudChip>
+        }
+    </MudChipSet>
+    
+    <div class="d-flex flex-grow-1 justify-center justify-sm-start mb-4 ">
+        <MudChip Text="New Guest" Color="Color.Success" Icon="@Icons.Material.Filled.Add" Label="true" Size="Size.Large"
+                 Class="px-10 px-sm-3 " OnClick="NewGuest" />
+    </div>
+    
+
+    <MudGrid>
+        @{ var filterSections = _selectedRsvpSectionChips.Select(x => x.Text).ToList(); }
+        @foreach (var guest in _allGuests)
+        {
+            @if (string.IsNullOrEmpty(_searchText) is false
+                && guest.Name.ToLower().Contains(_searchText.ToLower()) is false) { continue; }
+            
+            @if (guest.RsvpSections.Intersect(filterSections).Any() is false) { continue; }
+
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudPaper Class="pa-2">
+                    <div class="d-flex align-stretch">
+                        <MudText Typo="Typo.h5" Class="ms-2 mt-1">@guest.Name</MudText>
+                        <MudSpacer />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="() => EditGuest(guest)"></MudIconButton>
+                    </div>
+                    
+
+
+                    @foreach (var rsvpSection in guest.RsvpSections)
                     {
-                        <MudChip Color="Color.Info">@rsvpSection</MudChip>
+                        <MudChip Text="@rsvpSection" Variant="Variant.Text" Color="Color.Info" Size="Size.Small"></MudChip>
                     }
-                }
-            </MudTd>
-            <MudTd>
-                @{
-                    var jsonText = JsonSerializer.Serialize(context.RsvpData);
-                }
-                @jsonText
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+    
 }
 
 @code {
+    private MudChip[] _selectedRsvpSectionChips;
     private bool _loading = true;
-    private List<GuestDto> _allGuests = new List<GuestDto>();
+    private List<GuestDto> _allGuests = new();
+    private string _searchText = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,14 +77,9 @@ else
         var allGuestsResult = await DataService.GetAllGuestsAsync();
 
         _allGuests = allGuestsResult.Match(
-            m =>
-            {
-                Console.WriteLine(m.Count);
-                return m;
-            },
+            m => m,
             err =>
             {
-                Console.WriteLine(err.Message);
                 Snackbar.Add(err.Message, Severity.Error);
                 return new List<GuestDto>();
             });
@@ -73,4 +91,19 @@ else
         this.StateHasChanged();
     }
 
+    private void EditGuest(GuestDto guest)
+    {
+        var parameters = new DialogParameters<EditGuestDialog> {{x => x.GuestName, guest.Name}};
+
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large};
+
+        DialogService.Show<EditGuestDialog>("Edit Guest", parameters, options);
+    }
+
+    private void NewGuest()
+    {
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large};
+        
+        DialogService.Show<EditGuestDialog>("New Guest", options);
+    }
 }
