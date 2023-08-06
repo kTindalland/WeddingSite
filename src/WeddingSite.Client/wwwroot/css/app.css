@@ -1,4 +1,6 @@
-﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+﻿.blur-background {
+    backdrop-filter: blur(10px);
+}
 
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;

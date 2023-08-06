@@ -40,4 +40,25 @@ internal class MongoGuestDataAccess : IGuestDataAccess
     {
         return Task.FromResult(ObjectId.GenerateNewId().ToString());
     }
+
+    public async Task UpdateGuestAsync(Guest guest, CancellationToken cancellationToken)
+    {
+        var updateDefinition = Builders<Guest>.Update
+            .Set(g => g.Name, guest.Name)
+            .Set(g => g.RsvpSections, guest.RsvpSections)
+            .Set(g => g.RsvpData, guest.RsvpData);
+        
+        await _guestCollection.UpdateOneAsync(g => g.Id == guest.Id, 
+            updateDefinition, 
+            new UpdateOptions()
+            {
+                IsUpsert = false
+            },
+            cancellationToken);
+    }
+
+    public async Task DeleteGuestAsync(Guest guest, CancellationToken cancellationToken)
+    {
+        await _guestCollection.DeleteOneAsync(g => g.Id == guest.Id, cancellationToken);
+    }
 }

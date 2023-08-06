@@ -24,6 +24,16 @@ public static class GuestEndpoints
             .WithName("Create Guest")
             .WithTags("Guests");
 
+        app.MapPut("/api/guests/update", UpdateGuest)
+            .Produces<GuestDto>()
+            .WithName("Update Guest")
+            .WithTags("Guests");
+
+        app.MapDelete("/api/guests/delete", DeleteGuest)
+            .Produces<GuestDto>()
+            .WithName("Delete Guest")
+            .WithTags("Guests");
+        
         return app;
     }
 
@@ -63,6 +73,30 @@ public static class GuestEndpoints
         var createResult = await guestService.CreateGuestAsync(guestDto.FromDto(), cancellationToken);
 
         return createResult.Match(
+            m => Results.Ok(m.ToDto()),
+            err => Results.BadRequest(err.Message));
+    }
+
+    private static async Task<IResult> UpdateGuest(
+        [FromBody] GuestDto guestDto,
+        [FromServices] IGuestService guestService,
+        CancellationToken cancellationToken)
+    {
+        var updateResult = await guestService.UpdateGuestAsync(guestDto.FromDto(), cancellationToken);
+
+        return updateResult.Match(
+            m => Results.Ok(m.ToDto()),
+            err => Results.BadRequest(err.Message));
+    }
+
+    private static async Task<IResult> DeleteGuest(
+        [FromBody] GuestDto guest,
+        [FromServices] IGuestService guestService,
+        CancellationToken cancellationToken)
+    {
+        var deleteResult = await guestService.DeleteGuestAsync(guest.FromDto(), cancellationToken);
+        
+        return deleteResult.Match(
             m => Results.Ok(m.ToDto()),
             err => Results.BadRequest(err.Message));
     }

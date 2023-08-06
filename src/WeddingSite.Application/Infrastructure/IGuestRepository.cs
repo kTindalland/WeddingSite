@@ -9,4 +9,8 @@ public interface IGuestRepository
     Task CreateGuestAsync(Guest newGuest, CancellationToken cancellationToken);
 
     Task<string> GenerateDatabaseIdAsync();
+
+    Task UpdateGuestAsync(Guest guest, CancellationToken cancellationToken);
+
+    Task DeleteGuestAsync(Guest guest, CancellationToken cancellationToken);
 }

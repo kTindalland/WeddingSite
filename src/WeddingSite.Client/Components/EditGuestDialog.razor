@@ -1,13 +1,24 @@
 ﻿@using WeddingSite.Contracts.DTOs
+@using WeddingSite.Client.Services.Abstractions
+@inject IDataService DataService
+
 <MudDialog>
     <DialogContent>
-        <MudTextField @bind-Value="@_newName" Label="Name" />
-        <MudTextField @bind-Value="@_rsvpSections" Label="Rsvp Sections" />
-        <MudTextField @bind-Value="@_rsvpData" Label="Rsvp Data" Lines="5" />
+        <MudTextField @bind-Value="@_newName" Label="Name" Disabled="@(!_editSwitch)" />
+        <MudTextField @bind-Value="@_rsvpSections" Label="Rsvp Sections" Disabled="@(!_editSwitch)" />
+        <MudTextField @bind-Value="@_rsvpData" Label="Rsvp Data" Lines="5" Disabled="@(!_editSwitch)" />
+        <MudText Typo="Typo.caption" Color="Color.Error">@_failMessage</MudText>
+        
+        <MudSwitch
+            @bind-Checked="@_editSwitch"
+            ThumbIcon="@(_editSwitch==true ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)"
+            ThumbIconColor="@(_editSwitch==true ? Color.Success : Color.Error)">
+            Editing
+        </MudSwitch>
     </DialogContent>
     <DialogActions>
         <MudButton Color="Color.Primary" OnClick="Close">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="UpdateGuest">Submit</MudButton>
+        <MudButton Color="Color.Primary" OnClick="UpdateGuest" Disabled="@(!_editSwitch)">Submit</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -18,11 +29,13 @@
     [Parameter]
     public GuestDto Guest { get; set; } = new();
 
+    private string _failMessage = string.Empty;
     private string _newName = string.Empty;
     private string _rsvpSections = string.Empty;
     private string _rsvpData = string.Empty;
+    private bool _editSwitch;
     
-    void Close() => MudDialog?.Close(DialogResult.Ok(true));
+    void Close() => MudDialog?.Close(DialogResult.Cancel());
     
     protected override void OnParametersSet()
     {
@@ -45,9 +58,37 @@
         base.OnParametersSet();
     }
 
-    void UpdateGuest()
+    async Task UpdateGuest()
     {
+        var newGuestObject = CreateNewGuestObject();
+
+        var result = await DataService.UpdateGuestAsync(newGuestObject);
         
+        _failMessage = result.IsSuccess ? string.Empty : "Something went wrong. Please try again.";
+        result.IfSucc(f => MudDialog?.Close(DialogResult.Ok(f)));
+    }
+
+    GuestDto CreateNewGuestObject()
+    {
+        var rsvpSections = _rsvpSections.Split(',').Select(x => x.Trim()).ToList();
+
+        var rsvpDataStrings = _rsvpData.Split(',');
+        var rsvpData = new Dictionary<string, string>();
+
+        foreach (var dataString in rsvpDataStrings)
+        {
+            var sections = dataString.Split('=');
+
+            if (sections.Length != 2) continue; // Something weird has happened here...
+            
+            rsvpData[sections[0].Trim()] = sections[1].Trim();
+        }
+
+        return new GuestDto(
+            Guest.Id,
+            _newName,
+            rsvpSections,
+            rsvpData);
     }
     
 }

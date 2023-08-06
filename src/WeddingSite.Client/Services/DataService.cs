@@ -80,6 +80,40 @@ public class DataService : IDataService
             return new Result<List<GuestDto>>(ex);
         }
     }
+    
+    public async Task<Result<GuestDto>> UpdateGuestAsync(GuestDto guest)
+    {
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Put, "guests/update");
+            request.Content = ToJsonContent(guest);
+
+            var response = await _client.SendAsync(request);
+
+            return await MapResponseAsync<GuestDto>(response, "Something went wrong while updating a guest.");
+        }
+        catch (Exception e)
+        {
+            return new Result<GuestDto>(e);
+        }
+    }
+
+    public async Task<Result<GuestDto>> DeleteGuestAsync(GuestDto guest)
+    {
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Delete, "guests/delete");
+            request.Content = ToJsonContent(guest);
+
+            var response = await _client.SendAsync(request);
+
+            return await MapResponseAsync<GuestDto>(response, "Something went wrong while deleting a guest.");
+        }
+        catch (Exception e)
+        {
+            return new Result<GuestDto>(e);
+        }
+    }
 
     private async Task<Result<T>> MapResponseAsync<T>(HttpResponseMessage response,
         string defaultError = "Something went wrong.")

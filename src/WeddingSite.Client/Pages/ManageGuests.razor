@@ -44,11 +44,12 @@ else
             
             @if (guest.RsvpSections.Intersect(filterSections).Any() is false) { continue; }
 
-            <MudItem xs="12" sm="6" md="4" lg="3">
+            <MudItem xs="12" sm="6" md="4">
                 <MudPaper Class="pa-2">
                     <div class="d-flex align-stretch">
                         <MudText Typo="Typo.h5" Class="ms-2 mt-1">@guest.Name</MudText>
                         <MudSpacer />
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" OnClick="() => DeleteGuest(guest)"></MudIconButton>
                         <MudIconButton Icon="@Icons.Material.Outlined.Edit" OnClick="() => EditGuest(guest)"></MudIconButton>
                     </div>
                     
@@ -91,28 +92,85 @@ else
         this.StateHasChanged();
     }
 
-    private void EditGuest(GuestDto guest)
+    private async Task EditGuest(GuestDto guest)
     {
         var parameters = new DialogParameters<EditGuestDialog> {{x => x.Guest, guest}};
 
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large};
+        var options = new DialogOptions()
+        {
+            CloseButton = true, 
+            MaxWidth = MaxWidth.Large, 
+            DisableBackdropClick = true, 
+            ClassBackground = "blur-background"
+        };
 
-        DialogService.Show<EditGuestDialog>("Edit Guest", parameters, options);
+        var dialog = await DialogService.ShowAsync<EditGuestDialog>("Edit Guest", parameters, options);
+
+        var result = await dialog.Result;
+
+        if (result.Canceled is false)
+        {
+            var guestData = (GuestDto) result.Data;
+
+            var guestFromList = _allGuests.FirstOrDefault(x => x.Id == guestData.Id);
+
+            if (guestFromList is not null)
+            {
+                guestFromList.Name = guestData.Name;
+                guestFromList.RsvpSections = guestData.RsvpSections;
+                guestFromList.RsvpData = guestData.RsvpData;
+            }
+        }
     }
 
     private async Task NewGuest()
     {
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large};
+        var options = new DialogOptions()
+        {
+            CloseButton = true, 
+            MaxWidth = MaxWidth.Large, 
+            DisableBackdropClick = true, 
+            ClassBackground = "blur-background"
+        };
+
+        var dialog = await DialogService.ShowAsync<AddGuestDialog>("New Guest", options);
         
-        var dialogTask = DialogService.Show<AddGuestDialog>("New Guest", options).Result;
-        
-        var result = await dialogTask;
+        var result = await dialog.Result;
 
         if (result.Canceled is false)
         {
             var guestData = (GuestDto) result.Data;
             
             _allGuests.Add(guestData);
+        }
+    }
+
+    private async Task DeleteGuest(GuestDto guest)
+    {
+        var parameters = new DialogParameters<DeleteGuestDialog> {{x => x.Guest, guest}};
+        
+        var options = new DialogOptions()
+        {
+            CloseButton = true, 
+            MaxWidth = MaxWidth.Large, 
+            DisableBackdropClick = true, 
+            ClassBackground = "blur-background"
+        };
+
+        var dialog = await DialogService.ShowAsync<DeleteGuestDialog>("Delete Guest", parameters, options);
+        
+        var result = await dialog.Result;
+
+        if (result.Canceled is false)
+        {
+            var guestData = (GuestDto) result.Data;
+
+            var guestFromList = _allGuests.FirstOrDefault(x => x.Id == guestData.Id);
+
+            if (guestFromList is not null)
+            {
+                _allGuests.Remove(guestFromList);
+            }
         }
     }
 }
