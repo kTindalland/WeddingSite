@@ -38,4 +38,14 @@ internal class GuestRepository : IGuestRepository
     {
         return await _guestData.GenerateDatabaseIdAsync();
     }
+
+    public async Task UpdateGuestAsync(Guest guest, CancellationToken cancellationToken)
+    {
+        await _guestData.UpdateGuestAsync(guest.ToItem(), cancellationToken);
+    }
+
+    public async Task DeleteGuestAsync(Guest guest, CancellationToken cancellationToken)
+    {
+        await _guestData.DeleteGuestAsync(guest.ToItem(), cancellationToken);
+    }
 }

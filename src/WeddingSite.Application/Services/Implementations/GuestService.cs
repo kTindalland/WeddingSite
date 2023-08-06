@@ -71,4 +71,34 @@ public class GuestService : IGuestService
             return new Result<List<Guest>?>(ex);
         }
     }
+
+    public async Task<Result<Guest>> UpdateGuestAsync(Guest guest, CancellationToken cancellationToken)
+    {
+        var command = new UpdateGuest(guest);
+
+        try
+        {
+            await _commandDispatcher.SendAsync(command, cancellationToken);
+            return guest;
+        }
+        catch (Exception e)
+        {
+            return new Result<Guest>(e);
+        }
+    }
+
+    public async Task<Result<Guest>> DeleteGuestAsync(Guest guest, CancellationToken cancellationToken)
+    {
+        var command = new DeleteGuest(guest);
+        
+        try
+        {
+            await _commandDispatcher.SendAsync(command, cancellationToken);
+            return guest;
+        }
+        catch (Exception e)
+        {
+            return new Result<Guest>(e);
+        }
+    }
 }

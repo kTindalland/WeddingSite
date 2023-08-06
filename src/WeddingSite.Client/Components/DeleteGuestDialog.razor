@@ -1,0 +1,49 @@
+﻿@using WeddingSite.Contracts.DTOs
+@using WeddingSite.Client.Services.Abstractions
+
+@inject IDataService DataService
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.caption" Color="Color.Error">@_failMessage</MudText>
+        
+        <MudSwitch
+            @bind-Checked="@_confirmSwitch"
+            ThumbIcon="@(_confirmSwitch==true ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)"
+            ThumbIconColor="@(_confirmSwitch==true ? Color.Success : Color.Error)">
+            Are you sure you'd like to delete @Guest.Name?
+        </MudSwitch>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Close">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="DeleteGuest" Disabled="@(!_confirmSwitch)">Delete</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] 
+    MudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public GuestDto Guest { get; set; } = new();
+    
+    private bool _confirmSwitch = false;
+    private string _failMessage = string.Empty;
+    
+    void Close() => MudDialog?.Close(DialogResult.Cancel());
+    
+    protected override void OnParametersSet()
+    {
+        MudDialog?.SetTitle($"Delete {Guest.Name}?");
+
+        base.OnParametersSet();
+    }
+
+    async Task DeleteGuest()
+    {
+        var result = await DataService.DeleteGuestAsync(Guest);
+        
+        _failMessage = result.IsSuccess ? string.Empty : "Something went wrong. Please try again.";
+        result.IfSucc(f => MudDialog?.Close(DialogResult.Ok(f)));
+    }
+}
