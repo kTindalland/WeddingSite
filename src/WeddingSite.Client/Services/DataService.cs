@@ -49,11 +49,13 @@ public class DataService : IDataService
         }
     }
     
-    public async Task<Result<GuestDto>> CreateGuestAsync()
+    public async Task<Result<GuestDto>> CreateGuestAsync(GuestDto newGuest)
     {
         try
         {
             var request = new HttpRequestMessage(HttpMethod.Post, "guests/create");
+            request.Content = ToJsonContent(newGuest);
+
             var response = await _client.SendAsync(request);
 
             return await MapResponseAsync<GuestDto>(response, "Something went wrong when trying to create the guest.");
@@ -166,5 +168,10 @@ public class DataService : IDataService
         };
 
         return result;
+    }
+
+    private HttpContent ToJsonContent<T>(T item)
+    {
+        return JsonContent.Create(item, typeof(T));
     }
 }

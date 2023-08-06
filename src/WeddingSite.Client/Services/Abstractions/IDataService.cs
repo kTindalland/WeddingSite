@@ -13,5 +13,5 @@ public interface IDataService
 
     Task<Result<List<GuestDto>>> GetAllGuestsAsync();
 
-    Task<Result<GuestDto>> CreateGuestAsync();
+    Task<Result<GuestDto>> CreateGuestAsync(GuestDto newGuest);
 }

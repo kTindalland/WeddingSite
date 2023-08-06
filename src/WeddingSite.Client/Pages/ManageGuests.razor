@@ -93,17 +93,26 @@ else
 
     private void EditGuest(GuestDto guest)
     {
-        var parameters = new DialogParameters<EditGuestDialog> {{x => x.GuestName, guest.Name}};
+        var parameters = new DialogParameters<EditGuestDialog> {{x => x.Guest, guest}};
 
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large};
 
         DialogService.Show<EditGuestDialog>("Edit Guest", parameters, options);
     }
 
-    private void NewGuest()
+    private async Task NewGuest()
     {
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large};
         
-        DialogService.Show<EditGuestDialog>("New Guest", options);
+        var dialogTask = DialogService.Show<AddGuestDialog>("New Guest", options).Result;
+        
+        var result = await dialogTask;
+
+        if (result.Canceled is false)
+        {
+            var guestData = (GuestDto) result.Data;
+            
+            _allGuests.Add(guestData);
+        }
     }
 }

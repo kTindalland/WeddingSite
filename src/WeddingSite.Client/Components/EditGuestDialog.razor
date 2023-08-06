@@ -1,9 +1,13 @@
-﻿<MudDialog>
+﻿@using WeddingSite.Contracts.DTOs
+<MudDialog>
     <DialogContent>
-        <MudText>This is the edit dialog</MudText>
+        <MudTextField @bind-Value="@_newName" Label="Name" />
+        <MudTextField @bind-Value="@_rsvpSections" Label="Rsvp Sections" />
+        <MudTextField @bind-Value="@_rsvpData" Label="Rsvp Data" Lines="5" />
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="Close">Ok</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Close">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="UpdateGuest">Submit</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -12,14 +16,38 @@
     MudDialogInstance? MudDialog { get; set; }
 
     [Parameter]
-    public string GuestName { get; set; } = string.Empty;
+    public GuestDto Guest { get; set; } = new();
+
+    private string _newName = string.Empty;
+    private string _rsvpSections = string.Empty;
+    private string _rsvpData = string.Empty;
     
     void Close() => MudDialog?.Close(DialogResult.Ok(true));
     
     protected override void OnParametersSet()
     {
-        MudDialog?.SetTitle(GuestName);
+        MudDialog?.SetTitle(Guest.Name);
+
+        _newName = Guest.Name;
+
+        _rsvpSections = string.Join(", ", Guest.RsvpSections.ToArray());
+
+        foreach (var (key, value) in Guest.RsvpData)
+        {
+            _rsvpData += $"{key}={value}, ";
+        }
+
+        if (_rsvpData.Length > 0)
+        {
+            _rsvpData = _rsvpData.Substring(0, _rsvpData.Length - 2);
+        }
+
         base.OnParametersSet();
     }
 
+    void UpdateGuest()
+    {
+        
+    }
+    
 }

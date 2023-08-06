@@ -1,16 +1,47 @@
-﻿<MudDialog>
+﻿@using WeddingSite.Client.Services.Abstractions
+@using WeddingSite.Contracts.DTOs
+@inject IDataService DataService
+
+<MudDialog>
     <DialogContent>
-        <MudText>This is the add guest dialog</MudText>
+        <MudForm>
+            <MudTextField @bind-Value="_name" Label="Name" />
+            <MudTextField @bind-Value="_rsvpSections" Label="RSVP Sections" />
+        </MudForm>
+        <MudText Typo="Typo.caption" Color="Color.Error">@_failMessage</MudText>
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="Close">Ok</MudButton>
+        <MudButton Color="Color.Error" OnClick="Close">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="CreateGuest">Submit</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
     [CascadingParameter] 
     MudDialogInstance? MudDialog { get; set; }
-    
-    void Close() => MudDialog?.Close(DialogResult.Ok(true));
 
+    private string _name = string.Empty;
+    private string _rsvpSections = string.Empty;
+    private string _failMessage = string.Empty;
+    
+    void Close() => MudDialog?.Close(DialogResult.Cancel());
+
+    async Task CreateGuest()
+    {
+        var rsvpSections = _rsvpSections.Split(',').ToList();
+
+        var data = new GuestDto()
+        {
+            Name = _name,
+            RsvpSections = rsvpSections,
+            RsvpData = new Dictionary<string, string>()
+        };
+
+        
+        var result = await DataService.CreateGuestAsync(data);
+
+        _failMessage = result.IsSuccess ? string.Empty : "Something went wrong. Please try again.";
+        result.IfSucc(f => MudDialog?.Close(DialogResult.Ok(f)));
+    }
+    
 }
