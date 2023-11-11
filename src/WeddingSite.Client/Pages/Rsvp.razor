@@ -1,37 +1,51 @@
 ﻿@using Microsoft.AspNetCore.Authorization
-@using WeddingSite.Client.Models;
 @using WeddingSite.Client.Services.Abstractions
 @using WeddingSite.Contracts.DTOs
+@using LanguageExt
+@using Microsoft.AspNetCore.Components.Rendering
+@using WeddingSite.Client.Components
 @inject IDataService DataService
 @attribute [Authorize]
-@page "/rsvp"
+@page "/rsvp/{name}"
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-<h3 class="text-center">Rsvp</h3>
-
-@foreach(var guest in _guests)
-{
-    <RsvpComponent Name="@guest.Name" />
-    <br />
+@{
+    RenderFragment renderFragment = (builder) =>
+    {
+        _errorMessage.Match(
+            errorMessage => BuildErrorDisplay(errorMessage, builder),
+            () => BuildRsvpStatusIndicator(_model, builder));
+    };
+    
+    <div class="mt-5">
+        @renderFragment
+    </div>
 }
 
-
 @code {
-    private RsvpModel _model = new RsvpModel();
+    const string UserNotFoundMessage = "Your user data couldn't be retrieved from the server! Sorry!";
 
-    private List<GuestDto> _guests = new List<GuestDto>();
-    private string _debugText = string.Empty;
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    private Option<GuestDto> _model = Option<GuestDto>.None;
+    private Option<string> _errorMessage = Option<string>.None;
 
     protected override async Task OnParametersSetAsync()
     {
-        await GetClaimsPrincipalData();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var guestOption = await GetClaimsPrincipalData(authState);
+
+        guestOption.Match(
+            some => _model = Option<GuestDto>.Some(some),
+            () => _errorMessage = Option<string>.Some(UserNotFoundMessage));
+        
         await base.OnParametersSetAsync();
     }
 
-    private async Task GetClaimsPrincipalData()
+    private async Task<Option<GuestDto>> GetClaimsPrincipalData(AuthenticationState authState)
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
 
         var guestIds = user.Claims.Where(c => c.Type == "guests").Select(c => c.Value).ToList();
@@ -41,8 +55,40 @@
             var guestDto = await DataService.GetGuestAsync(id);
             
             if (guestDto is null) continue;
-            
-            _guests.Add(guestDto);
+
+            if (guestDto.Name == Name)
+            {
+                return Option<GuestDto>.Some(guestDto);
+            }
         }
+
+        return Option<GuestDto>.None;
+    }
+
+    private static void BuildErrorDisplay(string errorMessage, RenderTreeBuilder builder)
+    {
+        builder.OpenComponent<ErrorDisplay>(0);
+        builder.AddAttribute(1, "ErrorMessage", errorMessage);
+        builder.CloseComponent();
+    }
+
+    private static void BuildRsvpStatusIndicator(Option<GuestDto> guestOption, RenderTreeBuilder builder)
+    {
+        guestOption.Match(
+            some => BuildFullRsvpStatusIndicator(some, builder),
+            () => BuildSkeleton(builder));
+    }
+
+    private static void BuildFullRsvpStatusIndicator(GuestDto guestDto, RenderTreeBuilder builder)
+    {
+        builder.OpenComponent<RsvpStatusIndicator>(0);
+        builder.AddAttribute(1, "Guest", guestDto);
+        builder.CloseComponent();
+    }
+
+    private static void BuildSkeleton(RenderTreeBuilder builder)
+    {
+        builder.OpenComponent<Skeleton>(0);
+        builder.CloseComponent();
     }
 }

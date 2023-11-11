@@ -1,13 +1,28 @@
-﻿<MudNavMenu>
-    <MudNavLink Href="/" Match="NavLinkMatch.All">
+﻿@using WeddingSite.Client.Services.Abstractions
+@inject IDataService DataService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<MudNavMenu>
+    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Login">
         Login
     </MudNavLink>
     
     <AuthorizeView>
         <Authorized>
-            <MudNavLink Href="/rsvp" Match="NavLinkMatch.Prefix">
-                RSVP
-            </MudNavLink>
+            <MudNavGroup Title="RSVP" Icon="@Icons.Material.Outlined.FactCheck">
+                @{
+                    foreach (var name in _guestNames)
+                    {
+                        var link = $"/rsvp/{name}";
+                        <MudNavLink 
+                            Href="@link" 
+                            Match="NavLinkMatch.All"
+                            Icon="@Icons.Material.Outlined.Person">
+                            @name
+                        </MudNavLink>
+                    }
+                }
+            </MudNavGroup>
         </Authorized>
     </AuthorizeView>
     <AuthorizeView Policy="Admin">
@@ -23,3 +38,32 @@
         </Authorized>
     </AuthorizeView>
 </MudNavMenu>
+
+@code
+{
+    private List<string> _guestNames = new List<string>();
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _guestNames = await GetGuestNames(authState);
+    }
+    
+    private async Task<List<string>> GetGuestNames(AuthenticationState authState)
+    {
+        var user = authState.User;
+        var guests = new List<string>();
+        var guestIds = user.Claims.Where(c => c.Type == "guests").Select(c => c.Value).ToList();
+
+        foreach (var id in guestIds)
+        {
+            var guestDto = await DataService.GetGuestAsync(id);
+            
+            if (guestDto is null) continue;
+            
+            guests.Add(guestDto.Name);
+        }
+
+        return guests;
+    }
+}

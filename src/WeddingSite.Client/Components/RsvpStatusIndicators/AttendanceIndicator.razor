@@ -1,0 +1,32 @@
+﻿@using WeddingSite.Contracts.DTOs
+@inject NavigationManager NavigationManager;
+
+@{
+    var attending = Guest.RsvpData.ContainsKey("attendance/coming")
+                       && Guest.RsvpData["attendance/coming"] == "true";
+
+    var attendingSentence = attending
+        ? "You are currently attending"
+        : "You are currently not attending";
+}
+
+<MudCard>
+    <MudCardContent>
+        <MudText>Attendance</MudText>
+        <MudText Typo="Typo.body2">@attendingSentence</MudText>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="NavigateToEdit">Update</MudButton>
+    </MudCardActions>
+</MudCard>
+
+@code {
+
+    [Parameter]
+    public GuestDto Guest { get; set; } = new GuestDto();
+
+    private void NavigateToEdit()
+    {
+        NavigationManager.NavigateTo($"rsvp/{Guest.Name}/edit/attendance");
+    }
+}

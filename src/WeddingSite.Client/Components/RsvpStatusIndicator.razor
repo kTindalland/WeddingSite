@@ -1,0 +1,39 @@
+﻿@using WeddingSite.Contracts.DTOs
+@using Microsoft.AspNetCore.Components.Rendering
+@using WeddingSite.Client.Components.RsvpStatusIndicators
+@using WeddingSite.Client.Extensions
+
+@{
+    RenderFragment renderFragment = (builder) =>
+        _ = Guest.RsvpSections
+            .OrderBy(section => section.IndicatorPosition())
+            .Aggregate(0, (current, section) => BuildIndicator(section, builder, Guest, current));
+    
+    @renderFragment
+}
+
+@code {
+
+    [Parameter]
+    public GuestDto Guest { get; set; } = new GuestDto();
+
+    private static int BuildIndicator(string sectionName, RenderTreeBuilder builder, GuestDto guest, int currentPosition = 0)
+    {
+        switch (sectionName)
+        {
+            case "attendance":
+                builder.OpenComponent<AttendanceIndicator>(currentPosition++);
+                builder.AddAttribute(currentPosition++, "Guest", guest);
+                builder.CloseComponent();
+                break;
+                
+            case "food":
+                builder.OpenComponent<FoodIndicator>(currentPosition++);
+                builder.AddAttribute(currentPosition++, "Guest", guest);
+                builder.CloseComponent();
+                break;
+        }
+        
+        return currentPosition;
+    }
+}

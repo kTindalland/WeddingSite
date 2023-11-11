@@ -31,6 +31,7 @@ var baseUri = string.Concat(builder.HostEnvironment.BaseAddress, "api/");
 builder.Services.AddHttpClient("WeddingSiteApi", client =>
 {
     client.BaseAddress = new Uri(baseUri);
+    client.Timeout = TimeSpan.FromSeconds(10);
 });
 
 builder.Services.AddAuthorizationCore(config =>

@@ -1,0 +1,8 @@
+﻿<MudAlert Severity="Severity.Error" ContentAlignment="HorizontalAlignment.Center">@ErrorMessage</MudAlert>
+
+@code {
+
+    [Parameter]
+    public string ErrorMessage { get; set; } = "No error message provided!";
+
+}
