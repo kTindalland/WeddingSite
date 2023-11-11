@@ -15,14 +15,16 @@
     {
         _errorMessage.Match(
             errorMessage => BuildErrorDisplay(errorMessage, builder),
-            () => BuildRsvpManager(_model, builder));
+            () => BuildRsvpStatusIndicator(_model, builder));
     };
     
-    @renderFragment
+    <div class="mt-5">
+        @renderFragment
+    </div>
 }
 
 @code {
-    const string UserNotFoundMessage = "Your user data could'nt be retrieved from the server! Sorry!";
+    const string UserNotFoundMessage = "Your user data couldn't be retrieved from the server! Sorry!";
 
     [Parameter]
     public string Name { get; set; } = string.Empty;
@@ -70,21 +72,21 @@
         builder.CloseComponent();
     }
 
-    private static void BuildRsvpManager(Option<GuestDto> guestOption, RenderTreeBuilder builder)
+    private static void BuildRsvpStatusIndicator(Option<GuestDto> guestOption, RenderTreeBuilder builder)
     {
         guestOption.Match(
-            some => BuildFullRsvpManager(some, builder),
-            () => BuildLoadingSpinner(builder));
+            some => BuildFullRsvpStatusIndicator(some, builder),
+            () => BuildSkeleton(builder));
     }
 
-    private static void BuildFullRsvpManager(GuestDto guestDto, RenderTreeBuilder builder)
+    private static void BuildFullRsvpStatusIndicator(GuestDto guestDto, RenderTreeBuilder builder)
     {
-        builder.OpenComponent<RsvpManager>(0);
+        builder.OpenComponent<RsvpStatusIndicator>(0);
         builder.AddAttribute(1, "Guest", guestDto);
         builder.CloseComponent();
     }
 
-    private static void BuildLoadingSpinner(RenderTreeBuilder builder)
+    private static void BuildSkeleton(RenderTreeBuilder builder)
     {
         builder.OpenComponent<Skeleton>(0);
         builder.CloseComponent();
