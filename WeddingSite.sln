@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSIte.Tests.Unit", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSite.Tests.BlazorComponents", "test\WeddingSite.Tests.BlazorComponents\WeddingSite.Tests.BlazorComponents.csproj", "{0F8CC92E-6D40-46EC-A404-98C06A38742F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeddingSite.Logging", "src\WeddingSite.Logging\WeddingSite.Logging.csproj", "{83AF3A9A-F0C3-45AA-B442-E2C9B9BFFA22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WeddingSite.Logging", "src\WeddingSite.Logging\WeddingSite.Logging.csproj", "{83AF3A9A-F0C3-45AA-B442-E2C9B9BFFA22}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
