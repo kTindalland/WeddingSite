@@ -4,7 +4,7 @@
 @using WeddingSite.Contracts.DTOs
 @inject IDataService DataService
 @attribute [Authorize]
-@page "/rsvp"
+@page "/rsvp/{name}"
 
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
@@ -18,6 +18,8 @@
 
 
 @code {
+    [Parameter]
+    public string Name { get; set; }
     private RsvpModel _model = new RsvpModel();
 
     private List<GuestDto> _guests = new List<GuestDto>();
