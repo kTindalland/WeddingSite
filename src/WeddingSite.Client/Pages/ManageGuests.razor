@@ -36,7 +36,7 @@ else
     
 
     <MudGrid>
-        @{ var filterSections = _selectedRsvpSectionChips.Select(x => x.Text).ToList(); }
+        @{ var filterSections = _selectedRsvpSectionChips?.Select(x => x.Text).ToList() ?? new List<string>(); }
         @foreach (var guest in _allGuests)
         {
             @if (string.IsNullOrEmpty(_searchText) is false
@@ -67,7 +67,7 @@ else
 }
 
 @code {
-    private MudChip[] _selectedRsvpSectionChips;
+    private MudChip[]? _selectedRsvpSectionChips;
     private bool _loading = true;
     private List<GuestDto> _allGuests = new();
     private string _searchText = "";

@@ -9,14 +9,9 @@ using WeddingSite.Application.Infrastructure;
 using WeddingSite.Domain.Entities.Abstractions;
 
 namespace WeddingSite.Infrastructure.Services;
-internal class JwtTokenService : ITokenService
+internal class JwtTokenService(IConfiguration config) : ITokenService
 {
-    private readonly string _secretKey;
-    public JwtTokenService(
-        IConfiguration config)
-    {
-        _secretKey = config.GetValue<string>("TokenService:SecretKey");
-    }
+    private readonly string _secretKey = config.GetValue<string>("TokenService:SecretKey") ?? string.Empty;
 
     public string CreateToken(IInvitation invitation)
     {

@@ -16,13 +16,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHealthChecks()
     .AddMongoDb(
-        builder.Configuration.GetConnectionString("MongoDb"),
+        builder.Configuration.GetConnectionString("MongoDb") ?? throw new InvalidOperationException(),
         timeout: TimeSpan.FromSeconds(5))
     .AddApplicationStatus()
     .AddSeqPublisher(options =>
     {
-        options.Endpoint = builder.Configuration.GetConnectionString("SeqEndpoint");
-        options.ApiKey = builder.Configuration.GetConnectionString("SeqHealthCheckApiKey");
+        options.Endpoint = builder.Configuration.GetConnectionString("SeqEndpoint") ?? throw new InvalidOperationException();
+        options.ApiKey = builder.Configuration.GetConnectionString("SeqHealthCheckApiKey") ?? throw new InvalidOperationException();
         options.DefaultInputLevel = SeqInputLevel.Information;
     });
 
