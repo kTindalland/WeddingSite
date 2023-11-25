@@ -1,7 +1,50 @@
 ﻿@using WeddingSite.Contracts.DTOs
-<h3>FoodIndicator</h3>
+@inject NavigationManager NavigationManager;
+
+@{
+    var starter = Guest.RsvpData.TryGetValue("food/starter", out var value)
+        ? value
+        : null;
+
+    var main = Guest.RsvpData.TryGetValue("food/main", out value)
+        ? value
+        : null;
+
+    var dessert = Guest.RsvpData.TryGetValue("food/dessert", out value)
+        ? value
+        : null;
+
+    var starterString = starter is not null
+        ? $"You have chosen {starter} as your starter."
+        : "You have not chosen a starter.";
+
+    var mainString = main is not null
+        ? $"You have chosen {main} as your main."
+        : "You have not chosen a main";
+
+    var dessertString = dessert is not null
+        ? $"You have chosen {dessert} as your dessert"
+        : "You have not chosen a dessert";
+}
+
+<MudCard>
+    <MudCardContent>
+        <MudText>Food</MudText>
+        <MudText>@starterString</MudText>
+        <MudText>@mainString</MudText>
+        <MudText>@dessertString</MudText>
+    </MudCardContent>
+    <MudCardActions>
+        <MudButton Color="Color.Primary" OnClick="NavigateToEdit" Variant="Variant.Text">Update</MudButton>
+    </MudCardActions>
+</MudCard>
 
 @code {
     [Parameter]
     public GuestDto Guest { get; set; } = new GuestDto();
+
+    private void NavigateToEdit()
+    {
+        NavigationManager.NavigateTo($"rsvp/{Guest.Name}/edit/food");       
+    }
 }

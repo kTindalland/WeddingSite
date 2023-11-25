@@ -1,10 +1,129 @@
 ﻿@page "/rsvp/{name}/edit/attendance"
+@using WeddingSite.Contracts.DTOs
+@using LanguageExt
+@using LanguageExt.Common
+@using Microsoft.AspNetCore.Authorization
+@using WeddingSite.Client.Services.Abstractions
+@inject IDataService DataService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager;
+@attribute [Authorize]
 
-<h3>AttendanceEdit</h3>
+@{
+    const string comingSentence = "Currently you are attending!";
+    const string notComingSentence = "Currently you are not attending!";
+    const string pleaseConfirmSentence = "Please confirm your attendance";
+    
+    var currentAttendanceSentence = _guestModel.Match(
+        some =>
+        {
+            var attendingDataValue = ((IDictionary<string, string>) (some.RsvpData)).TryGetValue("attendance/coming");
+
+            return attendingDataValue.Match(
+                comingValue => comingValue switch{
+                    "true" => comingSentence,
+                    _ => notComingSentence
+                    },
+                () => pleaseConfirmSentence);
+        },
+        () => pleaseConfirmSentence);
+}
+
+@if (_loading)
+{
+    <Skeleton />
+}
+else
+{
+    <MudCard Class="mt-3">
+        @if (_guestModel.IsSome)
+        {
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6">Attendance Response</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText>@currentAttendanceSentence</MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <MudButton Class="me-2" Variant="Variant.Filled" Color="Color.Success" OnClick='() => ConfirmAttendance("true")'>I'm attending!</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick='() => ConfirmAttendance("false")'>I'm not attending!</MudButton>
+            </MudCardActions>
+        }
+        else
+        {
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6" Color="Color.Error">Oh no! Something went wrong!</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText>Couldn't get the guest details from the authentication token.</MudText>
+            </MudCardContent>
+        }
+    </MudCard>
+}
+
 
 @code {
-
     [Parameter]
     public string Name { get; set; } = string.Empty;
+    
+    private Option<GuestDto> _guestModel = Option<GuestDto>.None;
+    private bool _loading = true;
+    
+    protected override async Task OnParametersSetAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _guestModel = await GetClaimsPrincipalData(authState);
 
+        _loading = false;
+        await base.OnParametersSetAsync();
+    }
+
+    private async Task<Option<GuestDto>> GetClaimsPrincipalData(AuthenticationState authState)
+    {
+        var user = authState.User;
+
+        var guestIds = user.Claims.Where(c => c.Type == "guests").Select(c => c.Value).ToList();
+
+        foreach (var id in guestIds)
+        {
+            var guestDto = await DataService.GetGuestAsync(id);
+            
+            if (guestDto is null) continue;
+
+            if (guestDto.Name == Name)
+            {
+                return Option<GuestDto>.Some(guestDto);
+            }
+        }
+
+        return Option<GuestDto>.None;
+    }
+
+    private async Task ConfirmAttendance(string response)
+    {
+        var newModel = _guestModel
+            .Bind(model =>
+            {
+                var newDict = new Dictionary<string, string>(model.RsvpData)
+                {
+                    ["attendance/coming"] = response
+                };
+
+                return Option<GuestDto>.Some(new GuestDto(
+                    model.Id,
+                    model.Name,
+                    model.RsvpSections,
+                    newDict));
+            });
+
+       _ = await newModel.MatchAsync(
+            model => DataService.UpdateGuestAsync(model),
+            () => new Result<GuestDto>(new Exception("Wasn't a valid guest model!")));
+       
+       NavigationManager.NavigateTo($"/rsvp/{Name}");
+    }
 }
