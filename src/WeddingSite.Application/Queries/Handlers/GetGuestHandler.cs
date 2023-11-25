@@ -14,7 +14,7 @@ public class GetGuestHandler : IQueryHandler<GetGuest, Guest?>
         _guestRepository = guestRepository;
     }
     
-    public Task<Guest> HandleAsync(GetGuest query, CancellationToken cancellationToken = new CancellationToken())
+    public Task<Guest?> HandleAsync(GetGuest query, CancellationToken cancellationToken = new CancellationToken())
     {
         return _guestRepository.GetGuestAsync(query.Id, cancellationToken);
     }
