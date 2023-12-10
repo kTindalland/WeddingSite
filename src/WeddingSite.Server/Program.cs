@@ -72,6 +72,7 @@ else
 }
 
 app.MapGuestEndpoints();
+app.MapMealEndpoints();
 app.MapAuthenticationEndpoints();
 
 app.UseHttpsRedirection();
