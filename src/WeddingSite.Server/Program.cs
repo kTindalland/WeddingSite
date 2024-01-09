@@ -73,6 +73,7 @@ else
 
 app.MapGuestEndpoints();
 app.MapMealEndpoints();
+app.MapImageEndpoints();
 app.MapAuthenticationEndpoints();
 
 app.UseHttpsRedirection();
