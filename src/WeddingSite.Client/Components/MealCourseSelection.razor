@@ -5,12 +5,11 @@
     @if (Meals.Count > 0)
     {
         <MudForm>
-            <MudRadioGroup @bind-SelectedOption="SelectedId" T="string">
+            <MudRadioGroup @ref="_radioGroup" SelectedOptionChanged="OnSelectOptionChanged" T="string">
                 @foreach (var meal in Meals)
                 {
                     <MudCard Outlined="true" Class="my-4 mx-4">
-                        <MudRadio Value="@(meal.Id)" Color="Color.Primary" T="string">@meal.Name</MudRadio>
-                        @{ Console.WriteLine($"meal id: {meal.Id}"); }
+                        <MudRadio Option="@(meal.Id)" Color="Color.Primary" T="string">@meal.Name</MudRadio>
                         <p>@meal.Description</p>
                         @foreach (var tag in meal.Tags)
                         {
@@ -25,8 +24,6 @@
             ? "You haven't previously selected an option."
             : $"You have currently selected {_previouslySelectedName}";
         
-        @SelectedId
-        
         <h4>@selectedSentence</h4>
     }
     else
@@ -36,6 +33,8 @@
 </MudCard>
 
 @code {
+    MudRadioGroup<string> _radioGroup = null!;
+    
     [Parameter]
     public List<MealDto> Meals { get; set; } = Enumerable.Empty<MealDto>().ToList();
 
@@ -53,10 +52,22 @@
                                       ?.Name
                                   ?? string.Empty;
 
-        var ids = string.Join(',', Meals.Map(x => x.Id));
-        Console.WriteLine(ids);
         
         return base.OnParametersSetAsync();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        _radioGroup.SelectedOption = firstRender 
+            ? Meals.FirstOrDefault(x => x.Id == PreviouslySelectedId)?.Id!
+            : _radioGroup.SelectedOption;
+        
+        base.OnAfterRender(firstRender);
+    }
+
+    private void OnSelectOptionChanged(string selectedOption)
+    {
+        SelectedId = selectedOption;
     }
 
 }

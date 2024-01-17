@@ -2,10 +2,10 @@
 @using WeddingSite.Client.Services.Abstractions
 @using WeddingSite.Contracts.DTOs
 @using LanguageExt
-@using LanguageExt.Common
 @using WeddingSite.Client.Components;
 @inject IDataService DataService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 
 <h3>Food edit</h3>
 
@@ -76,7 +76,7 @@ else
 
     private string GetDictionaryValue(Dictionary<string, string> dict, string key)
     {
-        var valid = dict.TryGetValue("food/starter", out var data);
+        var valid = dict.TryGetValue(key, out var data);
         return valid
             ? data ?? string.Empty
             : string.Empty;
@@ -126,17 +126,8 @@ else
 
     private async Task SaveChoices()
     {
-        var elementNull = _startersElement is null;
-        Console.WriteLine($"element null: {elementNull} ");
-
-        var elementId = _startersElement?.SelectedId ?? "WAS NULL";
-        Console.WriteLine($"element id: {elementId}");
-        
         var updatedGuest = _guestModel.Bind(guest =>
         {
-            var rsvpSections = guest.RsvpSections.Filter(x => x != "food").ToList();
-            rsvpSections.Add("food");
-
             var rsvpData = guest.RsvpData;
             rsvpData["food/starter"] = _startersElement?.SelectedId ?? string.Empty;
             rsvpData["food/main"] = _mainsElement?.SelectedId ?? string.Empty;
@@ -146,16 +137,12 @@ else
             {
                 Id = guest.Id,
                 Name = guest.Name,
-                RsvpSections = rsvpSections,
+                RsvpSections = guest.RsvpSections,
                 RsvpData = rsvpData
             });
         })
         .IfNone(new GuestDto());
-
-        var foo = updatedGuest.RsvpData.TryGetValue("food/starter", out var bar);
         
-        Console.WriteLine($"valid: {foo}, value: {bar ?? string.Empty}");
-
         var serviceResult = await DataService.UpdateGuestAsync(updatedGuest);
 
         var guestOption = serviceResult.Match(
@@ -163,6 +150,14 @@ else
             _ => Option<GuestDto>.None);
         
         UpdateGuestData(guestOption);
+        NavigateBack(guestOption);
+    }
+
+    private void NavigateBack(Option<GuestDto> guestData)
+    {
+        guestData.Match(
+            guest => NavigationManager.NavigateTo($"rsvp/{guest.Name}"),
+            () => _ = 1);
     }
     
     private bool GetByCourse(string name, MealDto meal) => meal.Course.ToLower() == name;
