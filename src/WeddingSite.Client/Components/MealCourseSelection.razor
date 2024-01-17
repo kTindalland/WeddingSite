@@ -1,0 +1,62 @@
+﻿@using WeddingSite.Contracts.DTOs
+
+<MudCard Class="mb-4">
+    <h2 class="mb-4">@CourseName Options</h2>
+    @if (Meals.Count > 0)
+    {
+        <MudForm>
+            <MudRadioGroup @bind-SelectedOption="SelectedId" T="string">
+                @foreach (var meal in Meals)
+                {
+                    <MudCard Outlined="true" Class="my-4 mx-4">
+                        <MudRadio Value="@(meal.Id)" Color="Color.Primary" T="string">@meal.Name</MudRadio>
+                        @{ Console.WriteLine($"meal id: {meal.Id}"); }
+                        <p>@meal.Description</p>
+                        @foreach (var tag in meal.Tags)
+                        {
+                            <MudChip>@tag</MudChip>
+                        }
+                    </MudCard>
+                }
+            </MudRadioGroup>
+        </MudForm>
+        
+        var selectedSentence = string.IsNullOrWhiteSpace(_previouslySelectedName)
+            ? "You haven't previously selected an option."
+            : $"You have currently selected {_previouslySelectedName}";
+        
+        @SelectedId
+        
+        <h4>@selectedSentence</h4>
+    }
+    else
+    {
+        <p>There are no @CourseName options.</p>
+    }
+</MudCard>
+
+@code {
+    [Parameter]
+    public List<MealDto> Meals { get; set; } = Enumerable.Empty<MealDto>().ToList();
+
+    [Parameter] public string CourseName { get; set; } = string.Empty;
+
+    [Parameter] public string PreviouslySelectedId { get; set; } = string.Empty;
+
+    public string SelectedId { get; private set; } = null!;
+    private string _previouslySelectedName = string.Empty;
+
+    protected override Task OnParametersSetAsync()
+    {
+        _previouslySelectedName = Meals
+                                      .FirstOrDefault(x => x.Id == PreviouslySelectedId)
+                                      ?.Name
+                                  ?? string.Empty;
+
+        var ids = string.Join(',', Meals.Map(x => x.Id));
+        Console.WriteLine(ids);
+        
+        return base.OnParametersSetAsync();
+    }
+
+}

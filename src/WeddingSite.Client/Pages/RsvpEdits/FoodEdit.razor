@@ -1,10 +1,169 @@
 ﻿@page "/rsvp/{name}/edit/food"
+@using WeddingSite.Client.Services.Abstractions
+@using WeddingSite.Contracts.DTOs
+@using LanguageExt
+@using LanguageExt.Common
+@using WeddingSite.Client.Components;
+@inject IDataService DataService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <h3>Food edit</h3>
 
-@code {
+@if (_loading)
+{
+    <Skeleton />
+}
+else
+{
+    <MealCourseSelection @ref="@_startersElement" CourseName="Starters" Meals=@_starters PreviouslySelectedId="@_startersPreviousChoiceId" />
+    <MealCourseSelection @ref="@_mainsElement" CourseName="Mains" Meals=@_mains PreviouslySelectedId="@_mainsPreviousChoiceId" />
+    <MealCourseSelection @ref="@_dessertsElement" CourseName="Dessert" Meals=@_desserts PreviouslySelectedId="@_dessertsPreviousChoiceId" />
+    
+    <MudButton OnClick="() => SaveChoices()" Variant="Variant.Filled" Color="Color.Primary">Save Choices</MudButton>
+}
 
+@code {
+    
     [Parameter]
     public string Name { get; set; } = string.Empty;
 
+    private List<MealDto> _starters = [];
+    private List<MealDto> _mains = [];
+    private List<MealDto> _desserts = [];
+
+    private string _startersPreviousChoiceId = string.Empty;
+    private string _mainsPreviousChoiceId = string.Empty;
+    private string _dessertsPreviousChoiceId = string.Empty;
+
+    private MealCourseSelection? _startersElement = null!;
+    private MealCourseSelection? _mainsElement = null!;
+    private MealCourseSelection? _dessertsElement = null!;
+    
+    private Option<GuestDto> _guestModel = Option<GuestDto>.None;
+
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await PopulateMeals();
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var guestData = await GetClaimsPrincipalData(authState);
+
+        UpdateGuestData(guestData);
+        
+        _loading = false;
+
+        await base.OnInitializedAsync();
+    }
+
+    private void UpdateGuestData(Option<GuestDto> guestData)
+    {
+        _guestModel = guestData;
+
+        _startersPreviousChoiceId = guestData.Match(
+            guest => GetDictionaryValue(guest.RsvpData, "food/starter"),
+            () => string.Empty);
+
+        _mainsPreviousChoiceId = guestData.Match(
+            guest => GetDictionaryValue(guest.RsvpData, "food/main"),
+            () => string.Empty);
+
+        _dessertsPreviousChoiceId = guestData.Match(
+            guest => GetDictionaryValue(guest.RsvpData, "food/dessert"),
+            () => string.Empty);
+    }
+
+    private string GetDictionaryValue(Dictionary<string, string> dict, string key)
+    {
+        var valid = dict.TryGetValue("food/starter", out var data);
+        return valid
+            ? data ?? string.Empty
+            : string.Empty;
+    }
+
+    private async Task PopulateMeals()
+    {
+        var mealsResult = await DataService.GetAllMeals();
+
+        var isStarter = (MealDto meal) => GetByCourse("starter", meal);
+        var isMain = (MealDto meal) => GetByCourse("main", meal);
+        var isDessert = (MealDto meal) => GetByCourse("dessert", meal);
+
+        _starters = mealsResult.Match(
+            meals => meals.Where(isStarter).ToList(),
+            _ => Enumerable.Empty<MealDto>().ToList());
+
+        _mains = mealsResult.Match(
+            meals => meals.Where(isMain).ToList(),
+            _ => Enumerable.Empty<MealDto>().ToList());
+        
+        _desserts = mealsResult.Match(
+            meals => meals.Where(isDessert).ToList(),
+            _ => Enumerable.Empty<MealDto>().ToList());
+    }
+    
+    private async Task<Option<GuestDto>> GetClaimsPrincipalData(AuthenticationState authState)
+    {
+        var user = authState.User;
+
+        var guestIds = user.Claims.Where(c => c.Type == "guests").Select(c => c.Value).ToList();
+
+        foreach (var id in guestIds)
+        {
+            var guestDto = await DataService.GetGuestAsync(id);
+            
+            if (guestDto is null) continue;
+
+            if (guestDto.Name == Name)
+            {
+                return Option<GuestDto>.Some(guestDto);
+            }
+        }
+
+        return Option<GuestDto>.None;
+    }
+
+    private async Task SaveChoices()
+    {
+        var elementNull = _startersElement is null;
+        Console.WriteLine($"element null: {elementNull} ");
+
+        var elementId = _startersElement?.SelectedId ?? "WAS NULL";
+        Console.WriteLine($"element id: {elementId}");
+        
+        var updatedGuest = _guestModel.Bind(guest =>
+        {
+            var rsvpSections = guest.RsvpSections.Filter(x => x != "food").ToList();
+            rsvpSections.Add("food");
+
+            var rsvpData = guest.RsvpData;
+            rsvpData["food/starter"] = _startersElement?.SelectedId ?? string.Empty;
+            rsvpData["food/main"] = _mainsElement?.SelectedId ?? string.Empty;
+            rsvpData["food/dessert"] = _dessertsElement?.SelectedId ?? string.Empty;
+            
+            return Option<GuestDto>.Some(new GuestDto()
+            {
+                Id = guest.Id,
+                Name = guest.Name,
+                RsvpSections = rsvpSections,
+                RsvpData = rsvpData
+            });
+        })
+        .IfNone(new GuestDto());
+
+        var foo = updatedGuest.RsvpData.TryGetValue("food/starter", out var bar);
+        
+        Console.WriteLine($"valid: {foo}, value: {bar ?? string.Empty}");
+
+        var serviceResult = await DataService.UpdateGuestAsync(updatedGuest);
+
+        var guestOption = serviceResult.Match(
+            Option<GuestDto>.Some,
+            _ => Option<GuestDto>.None);
+        
+        UpdateGuestData(guestOption);
+    }
+    
+    private bool GetByCourse(string name, MealDto meal) => meal.Course.ToLower() == name;
 }
