@@ -3,10 +3,21 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <MudNavMenu>
-    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Login">
-        Login
+    <AuthorizeView>
+        <NotAuthorized>
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Login">
+                Login
+            </MudNavLink>
+        </NotAuthorized>
+        <Authorized>
+            <MudNavLink Href="/logout" Icon="@Icons.Material.Outlined.Logout">
+                Logout
+            </MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+    <MudNavLink Href="/about" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Info">
+        About
     </MudNavLink>
-    
     <AuthorizeView>
         <Authorized>
             <MudNavGroup Title="RSVP" Icon="@Icons.Material.Outlined.FactCheck">
@@ -14,8 +25,8 @@
                     foreach (var name in _guestNames)
                     {
                         var link = $"/rsvp/{name}";
-                        <MudNavLink 
-                            Href="@link" 
+                        <MudNavLink
+                            Href="@link"
                             Match="NavLinkMatch.All"
                             Icon="@Icons.Material.Outlined.Person">
                             @name

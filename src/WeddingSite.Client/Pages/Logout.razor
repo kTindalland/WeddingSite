@@ -1,0 +1,21 @@
+﻿@using WeddingSite.Client.Services.Abstractions
+@using WeddingSite.Client.Authentication
+@inject ITokenService TokenService
+@inject CustomAuthStateProvider AuthStateProvider
+@inject NavigationManager NavManager
+@page "/logout"
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ClearAuthState();
+        await base.OnInitializedAsync();
+    }
+
+    private async Task ClearAuthState()
+    {
+        await TokenService.ClearTokenAsync();
+        await AuthStateProvider.RaiseAuthenticationStateChanged();
+        NavManager.NavigateTo("/");
+    }
+}
