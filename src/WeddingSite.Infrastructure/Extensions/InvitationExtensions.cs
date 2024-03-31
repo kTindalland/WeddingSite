@@ -10,7 +10,8 @@ internal static class InvitationExtensions
             Id = invitation.Id.ToString(),
             Passphrase = invitation.Passphrase,
             Guests = invitation.Guests,
-            Roles = invitation.Roles
+            Roles = invitation.Roles,
+            IsFullDay = invitation.IsFullDay
         };
     }
 }

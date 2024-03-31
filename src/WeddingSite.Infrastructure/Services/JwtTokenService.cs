@@ -23,6 +23,7 @@ internal class JwtTokenService(IConfiguration config) : ITokenService
         claims.AddRange( invitation.Guests.Select(x => new Claim("guests", x)) );
         claims.AddRange( invitation.Roles.Select(x => new Claim("roles", x)) );
         claims.Add(new Claim("passphrase", invitation.Passphrase));
+        claims.Add(new Claim("isFullDay", invitation.IsFullDay.ToString()));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
