@@ -4,11 +4,11 @@
 {
     if (_rsvpDone)
     {
-        <span><MudIcon Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle"></MudIcon> @Guest.Name - has RSVP'd for everything they need to!</span>
+        <span><MudIcon Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle"></MudIcon> @Guest.Name - has RSVP'd for everything they need to! </span>
     }
     else
     {
-        <span><MudIcon Color="Color.Error" Icon="@Icons.Material.Filled.Clear"></MudIcon> @Guest.Name - still has things to RSVP for!</span>
+        <span><MudIcon Color="Color.Error" Icon="@Icons.Material.Filled.Clear"></MudIcon> @Guest.Name - still has things to RSVP for! </span>
         var link = $"/rsvp/{Guest.Name}/";
         <MudButton Color="Color.Info" Variant="Variant.Outlined" Href="@link">RSVP Here!</MudButton>
     }

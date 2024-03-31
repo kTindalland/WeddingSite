@@ -53,12 +53,23 @@
 @code
 {
     private List<string> _guestNames = new List<string>();
-    
-    protected override async Task OnParametersSetAsync()
+
+    protected override void OnInitialized()
+    {
+        AuthenticationStateProvider.AuthenticationStateChanged += async (state) => await UpdateNames(state);
+        base.OnInitialized();
+    }
+
+    private async Task UpdateNames(Task<AuthenticationState> state)
+    {
+        _guestNames = await GetGuestNames(await state);
+    }
+
+    /*protected override async Task OnParametersSetAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         _guestNames = await GetGuestNames(authState);
-    }
+    }*/
     
     private async Task<List<string>> GetGuestNames(AuthenticationState authState)
     {
