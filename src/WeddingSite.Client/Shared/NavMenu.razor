@@ -65,11 +65,11 @@
         _guestNames = await GetGuestNames(await state);
     }
 
-    /*protected override async Task OnParametersSetAsync()
+    protected override async Task OnParametersSetAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        _guestNames = await GetGuestNames(authState);
-    }*/
+        var authState = AuthenticationStateProvider.GetAuthenticationStateAsync();
+        await UpdateNames(authState);
+    }
     
     private async Task<List<string>> GetGuestNames(AuthenticationState authState)
     {
