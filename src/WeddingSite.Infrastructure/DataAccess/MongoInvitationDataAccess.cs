@@ -21,7 +21,8 @@ internal class MongoInvitationDataAccess : IInvitationDataAccess
             Limit = 1
         };
 
-        var invitation = (await _invitationCollection.FindAsync(x => x.Passphrase == passphrase, options)).ToList();
+        var loweredPassphrase = passphrase.ToLower();
+        var invitation = (await _invitationCollection.FindAsync(x => x.Passphrase == loweredPassphrase, options)).ToList();
 
         return invitation.FirstOrDefault();
     }
