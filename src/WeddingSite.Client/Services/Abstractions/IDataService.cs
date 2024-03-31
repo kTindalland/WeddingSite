@@ -18,4 +18,6 @@ public interface IDataService
     Task<Result<GuestDto>> UpdateGuestAsync(GuestDto guest);
 
     Task<Result<GuestDto>> DeleteGuestAsync(GuestDto guest);
+
+    Task<Result<List<MealDto>>> GetAllMeals();
 }

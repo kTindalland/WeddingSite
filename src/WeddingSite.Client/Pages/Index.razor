@@ -17,7 +17,7 @@
     <AuthorizeView>
         <Authorized>
             <MudAlert Severity="Severity.Info">
-                You're currently already logged in as @context.User.Claims.FirstOrDefault(u => u.Type == "guests")?.Value
+                You're currently already logged in
             </MudAlert>
             <div class="d-flex pt-4">
                 <MudButton OnClick="ClearToken" Variant="Variant.Filled" Color="Color.Secondary" Class="mx-auto px-16">
@@ -43,6 +43,17 @@
 @code {
     private string _passphraseValue = string.Empty;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        
+        var redirect = authState.User.HasClaim(c => c.Type == "guests");
+        
+        if (redirect) _navManager.NavigateTo("/about");
+        
+        await base.OnInitializedAsync();
+    }
+
     private async Task GetToken()
     {
         var currentPassphrase = _passphraseValue;
@@ -65,11 +76,12 @@
 
         await _authStateProvider.RaiseAuthenticationStateChanged();
 
-        var authState = await _authStateProvider.GetAuthenticationStateAsync();
-        var name = authState.User.Claims.FirstOrDefault(u => u.Type == "guests")?.Value!;
-        Snackbar.Add($"Login Successful, hello {name}!", Severity.Success);
+        Snackbar.Add($"Login Successful!", Severity.Success);
 
         _passphraseValue = string.Empty;
+        
+        _navManager.NavigateTo("/about");
+        
         this.StateHasChanged();
     }
 

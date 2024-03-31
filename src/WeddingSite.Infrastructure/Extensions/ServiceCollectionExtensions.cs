@@ -18,12 +18,14 @@ public static class ServiceCollectionExtensions
             return new MongoClient(connectionString);
         });
 
-        services.AddTransient<IGuestDataAccess, MongoGuestDataAccess>();
-        services.AddTransient<IGuestRepository, GuestRepository>();
-        services.AddTransient<IInvitationDataAccess, MongoInvitationDataAccess>();
-        services.AddTransient<IInvitationRepository, InvitationRepository>();
+        services.AddScoped<IGuestDataAccess, MongoGuestDataAccess>();
+        services.AddScoped<IGuestRepository, GuestRepository>();
+        services.AddScoped<IInvitationDataAccess, MongoInvitationDataAccess>();
+        services.AddScoped<IInvitationRepository, InvitationRepository>();
+        services.AddScoped<IMealDataAccess, MongoMealDataAccess>();
+        services.AddScoped<IMealRepository, MealRepository>();
 
-        services.AddTransient<ITokenService, JwtTokenService>();
+        services.AddScoped<ITokenService, JwtTokenService>();
 
         return services;
     }

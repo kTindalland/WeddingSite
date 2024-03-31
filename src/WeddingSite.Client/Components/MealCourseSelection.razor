@@ -1,0 +1,73 @@
+﻿@using WeddingSite.Contracts.DTOs
+
+<MudCard Class="mb-4">
+    <h2 class="mb-4">@CourseName Options</h2>
+    @if (Meals.Count > 0)
+    {
+        <MudForm>
+            <MudRadioGroup @ref="_radioGroup" SelectedOptionChanged="OnSelectOptionChanged" T="string">
+                @foreach (var meal in Meals)
+                {
+                    <MudCard Outlined="true" Class="my-4 mx-4">
+                        <MudRadio Option="@(meal.Id)" Color="Color.Primary" T="string">@meal.Name</MudRadio>
+                        <p>@meal.Description</p>
+                        @foreach (var tag in meal.Tags)
+                        {
+                            <MudChip>@tag</MudChip>
+                        }
+                    </MudCard>
+                }
+            </MudRadioGroup>
+        </MudForm>
+        
+        var selectedSentence = string.IsNullOrWhiteSpace(_previouslySelectedName)
+            ? "You haven't previously selected an option."
+            : $"You have currently selected {_previouslySelectedName}";
+        
+        <h4>@selectedSentence</h4>
+    }
+    else
+    {
+        <p>There are no @CourseName options.</p>
+    }
+</MudCard>
+
+@code {
+    MudRadioGroup<string> _radioGroup = null!;
+    
+    [Parameter]
+    public List<MealDto> Meals { get; set; } = Enumerable.Empty<MealDto>().ToList();
+
+    [Parameter] public string CourseName { get; set; } = string.Empty;
+
+    [Parameter] public string PreviouslySelectedId { get; set; } = string.Empty;
+
+    public string SelectedId { get; private set; } = null!;
+    private string _previouslySelectedName = string.Empty;
+
+    protected override Task OnParametersSetAsync()
+    {
+        _previouslySelectedName = Meals
+                                      .FirstOrDefault(x => x.Id == PreviouslySelectedId)
+                                      ?.Name
+                                  ?? string.Empty;
+
+        
+        return base.OnParametersSetAsync();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        _radioGroup.SelectedOption = firstRender 
+            ? Meals.FirstOrDefault(x => x.Id == PreviouslySelectedId)?.Id!
+            : _radioGroup.SelectedOption;
+        
+        base.OnAfterRender(firstRender);
+    }
+
+    private void OnSelectOptionChanged(string selectedOption)
+    {
+        SelectedId = selectedOption;
+    }
+
+}

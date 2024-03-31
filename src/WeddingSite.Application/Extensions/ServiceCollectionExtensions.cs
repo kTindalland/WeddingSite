@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
             .AddInMemoryCommandDispatcher();
 
         services.AddScoped<IGuestService, GuestService>();
+        services.AddScoped<IMealService, MealService>();
 
         return services;
     }

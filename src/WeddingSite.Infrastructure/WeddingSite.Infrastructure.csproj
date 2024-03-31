@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\WeddingSite.Application\WeddingSite.Application.csproj" />
+    <ProjectReference Include="..\WeddingSite.Shared\WeddingSite.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MongoDB.Driver" Version="2.22.0" />

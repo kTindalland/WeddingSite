@@ -115,6 +115,21 @@ public class DataService : IDataService
         }
     }
 
+    public async Task<Result<List<MealDto>>> GetAllMeals()
+    {
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "meals");
+            var response = await _client.SendAsync(request);
+
+            return await MapResponseAsync<List<MealDto>>(response, "Something went wrong when getting all the meals.");
+        }
+        catch (Exception e)
+        {
+            return new Result<List<MealDto>>(e);
+        }
+    }
+
     private async Task<Result<T>> MapResponseAsync<T>(HttpResponseMessage response,
         string defaultError = "Something went wrong.")
     {

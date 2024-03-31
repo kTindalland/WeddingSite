@@ -1,29 +1,44 @@
 ﻿@using WeddingSite.Contracts.DTOs
+@using WeddingSite.Client.Services.Abstractions
+@using LanguageExt.Common
+@inject IDataService DataService
 @inject NavigationManager NavigationManager;
 
 @{
-    var starter = Guest.RsvpData.TryGetValue("food/starter", out var value)
+    var starterId = Guest.RsvpData.TryGetValue("food/starter", out var value)
         ? value
         : null;
 
-    var main = Guest.RsvpData.TryGetValue("food/main", out value)
+    var mainId = Guest.RsvpData.TryGetValue("food/main", out value)
         ? value
         : null;
 
-    var dessert = Guest.RsvpData.TryGetValue("food/dessert", out value)
+    var dessertId = Guest.RsvpData.TryGetValue("food/dessert", out value)
         ? value
         : null;
 
-    var starterString = starter is not null
-        ? $"You have chosen {starter} as your starter."
+    string? starterName = _allMeals.Match(
+        success => success.FirstOrDefault(x => x.Id == starterId)?.Name,
+        _ => null);
+    
+    string? mainName = _allMeals.Match(
+        success => success.FirstOrDefault(x => x.Id == mainId)?.Name,
+        _ => null);
+    
+    string? dessertName = _allMeals.Match(
+        success => success.FirstOrDefault(x => x.Id == dessertId)?.Name,
+        _ => null);
+
+    var starterString = starterName is not null
+        ? $"You have chosen {starterName} as your starter."
         : "You have not chosen a starter.";
 
-    var mainString = main is not null
-        ? $"You have chosen {main} as your main."
+    var mainString = mainName is not null
+        ? $"You have chosen {mainName} as your main."
         : "You have not chosen a main";
 
-    var dessertString = dessert is not null
-        ? $"You have chosen {dessert} as your dessert"
+    var dessertString = dessertName is not null
+        ? $"You have chosen {dessertName} as your dessert"
         : "You have not chosen a dessert";
 }
 
@@ -43,8 +58,18 @@
     [Parameter]
     public GuestDto Guest { get; set; } = new GuestDto();
 
+    private Result<List<MealDto>> _allMeals = new(
+        Enumerable.Empty<MealDto>().ToList());
+
     private void NavigateToEdit()
     {
         NavigationManager.NavigateTo($"rsvp/{Guest.Name}/edit/food");       
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _allMeals = await DataService.GetAllMeals();
+        await base.OnInitializedAsync();
+    }
+
 }
