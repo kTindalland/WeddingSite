@@ -1,6 +1,68 @@
 ﻿@page "/about"
+@using WeddingSite.Contracts.DTOs
+@using WeddingSite.Client.Services.Abstractions
+@inject IDataService DataService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 <h3>About</h3>
 
+@if (_isFullDay)
+{
+    <p>You're invited to the ceremony, which starts at 3:00 PM, guests are asked to please arrive for 2:00 PM</p>
+}
+else
+{
+    <p>You're invited to the night do, which starts at 7:30 PM</p>
+}
+
+@foreach (var guest in _guests)
+{
+    <br/>
+    <RsvpShortIndicator Guest="@guest" />
+}
+
 @code {
+    private bool _isFullDay;
+    private IEnumerable<GuestDto> _guests = Enumerable.Empty<GuestDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        _isFullDay = GetFullDayFlag(authState);
+        _guests = await GetGuestsAsync(authState);
+    }
+
+    private bool GetFullDayFlag(AuthenticationState authState)
+    {
+        var isFullDayString = authState.User.Claims
+                                  .FirstOrDefault(c => c.Type == "isFullDay")
+                                  ?.Value
+                              ?? "false";
+
+        var valid = bool.TryParse(isFullDayString, out var fullDayFlag);
+
+        return valid && fullDayFlag;
+    }
+
+    private async Task<List<GuestDto>> GetGuestsAsync(AuthenticationState authState)
+    {
+        var guestIds = authState.User.Claims
+            .Where(c => c.Type == "guests")
+            .Select(c => c.Value);
+        
+        var guests = new List<GuestDto>();
+        
+        foreach (var id in guestIds)
+        {
+            var guestDto = await DataService.GetGuestAsync(id);
+            
+            if (guestDto is null) continue;
+            
+            guests.Add(guestDto);
+        }
+
+        return guests;
+    }
+    
     
 }
