@@ -17,4 +17,7 @@ internal class Invitation
 
     [BsonElement("roles")]
     public List<string> Roles { get; set; } = new List<string>();
+
+    [BsonElement("isFullDay")]
+    public bool IsFullDay { get; set; } = false;
 }

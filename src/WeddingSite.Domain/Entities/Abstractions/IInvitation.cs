@@ -5,4 +5,5 @@ public interface IInvitation
     public string Passphrase { get; set; }
     public List<string> Guests { get; set; }
     public List<string> Roles { get; set; }
+    public bool IsFullDay { get; set; }
 }

@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IGuestService, GuestService>();
         services.AddScoped<IMealService, MealService>();
+        services.AddScoped<ITempService, TempService>();
 
         return services;
     }

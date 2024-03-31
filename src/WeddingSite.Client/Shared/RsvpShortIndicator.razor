@@ -1,0 +1,74 @@
+﻿@using WeddingSite.Contracts.DTOs
+
+@if (Guest is not null)
+{
+    if (_rsvpDone)
+    {
+        <span><MudIcon Color="Color.Success" Icon="@Icons.Material.Filled.CheckCircle"></MudIcon> @Guest.Name - has RSVP'd for everything they need to! </span>
+    }
+    else
+    {
+        <span><MudIcon Color="Color.Error" Icon="@Icons.Material.Filled.Clear"></MudIcon> @Guest.Name - still has things to RSVP for! </span>
+        var link = $"/rsvp/{Guest.Name}/";
+        <MudButton Color="Color.Info" Variant="Variant.Outlined" Href="@link">RSVP Here!</MudButton>
+    }
+}
+
+@code {
+    [Parameter] public GuestDto? Guest { get; set; } = null;
+
+    private bool _rsvpDone = false;
+
+    protected override void OnParametersSet()
+    {
+        if (Guest is not null)
+        {
+            var aggregateFunc = (bool aggregation, string current) => AggregateRsvpSectionStatus(aggregation, current, Guest.RsvpData);
+            _rsvpDone = Guest.RsvpSections.Aggregate(true, aggregateFunc);
+        }
+        base.OnParametersSet();
+    }
+    
+    
+
+    private bool AggregateRsvpSectionStatus(bool aggregation, string name, Dictionary<string, string> data)
+    {
+        var sectionDone = name switch
+        {
+            "attendance" => AttendanceDone(data),
+            "food" => FoodDone(data),
+            _ => false
+        };
+
+        return aggregation && sectionDone;
+    }
+
+    private bool AttendanceDone(Dictionary<string, string> data)
+    {
+        var valid = data.TryGetValue("attendance/coming", out var comingValue);
+
+        return valid && comingValue is "true" or "false";
+    }
+
+    private bool FoodDone(Dictionary<string, string> data)
+    {
+        var getSection = (string key) => GetValueSafe(data, "food/" + key);
+
+        string[] courses = ["starter", "main", "dessert"];
+        var anyEmptyCourses = courses
+            .Select(x => getSection(x))
+            .Any(string.IsNullOrWhiteSpace);
+
+        return anyEmptyCourses is false;
+    }
+
+    private string GetValueSafe(Dictionary<string, string> data, string key)
+    {
+        var valid = data.TryGetValue(key, out var value);
+
+        return valid && value is not null
+            ? value 
+            : string.Empty;
+    }
+
+}

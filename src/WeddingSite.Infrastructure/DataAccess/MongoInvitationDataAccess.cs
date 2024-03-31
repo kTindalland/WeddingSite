@@ -1,4 +1,5 @@
-﻿using WeddingSite.Infrastructure.Items;
+﻿using MongoDB.Bson;
+using WeddingSite.Infrastructure.Items;
 using WeddingSite.Infrastructure.DataAccess.Abstractions;
 using MongoDB.Driver;
 
@@ -20,8 +21,23 @@ internal class MongoInvitationDataAccess : IInvitationDataAccess
             Limit = 1
         };
 
-        var invitation = (await _invitationCollection.FindAsync(x => x.Passphrase == passphrase, options)).ToList();
+        var loweredPassphrase = passphrase.ToLower();
+        var invitation = (await _invitationCollection.FindAsync(x => x.Passphrase == loweredPassphrase, options)).ToList();
 
         return invitation.FirstOrDefault();
+    }
+
+    public async Task CreateInvitation(Invitation invitation, CancellationToken cancellationToken)
+    {
+        var existingInvitation = await GetInvitation(invitation.Passphrase);
+
+        if (existingInvitation is not null) throw new Exception($"Invitation with passphrase {invitation.Passphrase} already exists");
+
+        await _invitationCollection.InsertOneAsync(invitation, cancellationToken: cancellationToken);
+    }
+
+    public async Task DeleteAllInvitations(CancellationToken cancellationToken)
+    {
+        await _invitationCollection.DeleteManyAsync(_ => true, cancellationToken);
     }
 }

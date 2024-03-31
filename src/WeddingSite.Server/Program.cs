@@ -76,6 +76,13 @@ app.MapMealEndpoints();
 app.MapImageEndpoints();
 app.MapAuthenticationEndpoints();
 
+var mapTempEndpoints = app.Configuration.GetValue<bool>("mapTempEndpoints");
+
+if (mapTempEndpoints)
+{
+    app.MapTempEndpoints();
+}
+
 app.UseHttpsRedirection();
 
 app.UseBlazorFrameworkFiles();
