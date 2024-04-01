@@ -56,7 +56,13 @@
 
     private async Task GetToken()
     {
-        var currentPassphrase = _passphraseValue;
+        var passcodeCharArray = _passphraseValue
+            .ToCharArray()
+            .Where(c => !char.IsWhiteSpace(c))
+            .ToArray();
+
+        var currentPassphrase = new string(passcodeCharArray);
+        
         _logger.LogInformation("Attempting to get a token using passphrase {Passphrase}", currentPassphrase);
         
         var result = await _dataService.GetAuthTokenAsync(currentPassphrase);
