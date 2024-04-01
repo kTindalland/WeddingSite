@@ -2,15 +2,18 @@
 @inject NavigationManager NavigationManager;
 
 @{
-    var attending = Guest.RsvpData.ContainsKey("attendance/coming")
-                       && Guest.RsvpData["attendance/coming"] == "true";
+    var valid = Guest.RsvpData.TryGetValue("attendance/coming", out var comingValue);
 
-    var attendingSentence = attending
-        ? "You are currently attending"
-        : "You are currently not attending";
+    var attendingSentence = (valid, comingValue) switch
+    {
+        {valid: true, comingValue: "true"} => "You are currently attending",
+        {valid: true, comingValue: "false"} => "You are currently not attending",
+        {valid: false} => "You are yet to confirm attendance",
+        _ => "Something has gone wrong, please tell Kai. Error Code: AT_001"
+    };
 }
 
-<MudCard>
+<MudCard Class="mb-5">
     <MudCardContent>
         <MudText>Attendance</MudText>
         <MudText Typo="Typo.body2">@attendingSentence</MudText>
