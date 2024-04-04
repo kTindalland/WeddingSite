@@ -20,4 +20,6 @@ public interface IDataService
     Task<Result<GuestDto>> DeleteGuestAsync(GuestDto guest);
 
     Task<Result<List<MealDto>>> GetAllMeals();
+
+    Task<Result<RsvpStatistics>> GetGuestStatisticsAsync();
 }

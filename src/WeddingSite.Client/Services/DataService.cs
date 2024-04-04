@@ -130,6 +130,23 @@ public class DataService : IDataService
         }
     }
 
+    public async Task<Result<RsvpStatistics>> GetGuestStatisticsAsync()
+    {
+        try
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, "guests/statistics");
+            var response = await _client.SendAsync(request);
+
+            return await MapResponseAsync<RsvpStatistics>(response,
+                "Something went wrong while trying to get guest statistics");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
     private async Task<Result<T>> MapResponseAsync<T>(HttpResponseMessage response,
         string defaultError = "Something went wrong.")
     {

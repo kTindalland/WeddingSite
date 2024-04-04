@@ -14,6 +14,11 @@ public static class GuestEndpoints
             .WithName("Get All Guests")
             .WithTags("Guests");
 
+        app.MapGet("/api/guests/statistics", GetGuestStatisticsAsync)
+            .Produces<RsvpStatistics>(200)
+            .WithName("Get RSVP Statistics")
+            .WithTags("Guests");
+
         app.MapGet("/api/guests", GetGuestAsync)
             .Produces<GuestDto>()
             .WithName("Get Guest")
@@ -98,6 +103,17 @@ public static class GuestEndpoints
         
         return deleteResult.Match(
             m => Results.Ok(m.ToDto()),
+            err => Results.BadRequest(err.Message));
+    }
+
+    private static async Task<IResult> GetGuestStatisticsAsync(
+        [FromServices] IGuestService guestService,
+        CancellationToken cancellationToken)
+    {
+        var stats = await guestService.GetGuestStatistics(cancellationToken);
+
+        return stats.Match(
+            Results.Ok,
             err => Results.BadRequest(err.Message));
     }
 }

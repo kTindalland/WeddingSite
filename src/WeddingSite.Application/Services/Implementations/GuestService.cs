@@ -4,6 +4,7 @@ using LanguageExt.Common;
 using WeddingSite.Application.Commands;
 using WeddingSite.Application.Queries;
 using WeddingSite.Application.Services.Interfaces;
+using WeddingSite.Contracts.DTOs;
 using WeddingSite.Domain.Entities;
 
 namespace WeddingSite.Application.Services.Implementations;
@@ -100,5 +101,40 @@ public class GuestService : IGuestService
         {
             return new Result<Guest>(e);
         }
+    }
+
+    public async Task<Result<RsvpStatistics>> GetGuestStatistics(CancellationToken cancellationToken)
+    {
+        var allGuests = await GetAllGuestsAsync(cancellationToken);
+
+        return allGuests
+            .Map(x => x?.Aggregate(new RsvpStatistics(), AggregateStatistics) ?? new RsvpStatistics());
+    }
+
+    private RsvpStatistics AggregateStatistics(RsvpStatistics aggregate, Guest guest)
+    {
+        aggregate.Total++;
+
+        var comingValid = guest.RsvpData.TryGetValue("attendance/coming", out var coming);
+
+        switch ((comingValid, coming))
+        {
+            case {comingValid: false}:
+                aggregate.TotalYetToRsvp++;
+                aggregate.YetToRsvpNames.Add(guest.Name);
+                break;
+            
+            case {coming: "true"}:
+                aggregate.TotalComing++;
+                aggregate.ComingNames.Add(guest.Name);
+                break;
+            
+            case {coming: "false"}:
+                aggregate.TotalNotComing++;
+                aggregate.NotComingNames.Add(guest.Name);
+                break;
+        }
+
+        return aggregate;
     }
 }
