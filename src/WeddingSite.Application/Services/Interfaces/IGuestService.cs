@@ -1,4 +1,5 @@
 ﻿using LanguageExt.Common;
+using WeddingSite.Contracts.DTOs;
 using WeddingSite.Domain.Entities;
 
 namespace WeddingSite.Application.Services.Interfaces;
@@ -14,4 +15,6 @@ public interface IGuestService
     Task<Result<Guest>> UpdateGuestAsync(Guest guest, CancellationToken cancellationToken);
 
     Task<Result<Guest>> DeleteGuestAsync(Guest guest, CancellationToken cancellationToken);
+
+    Task<Result<RsvpStatistics>> GetGuestStatistics(CancellationToken cancellationToken);
 }

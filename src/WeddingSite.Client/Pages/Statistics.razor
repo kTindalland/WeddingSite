@@ -1,0 +1,98 @@
+﻿@page "/statistics"
+@using WeddingSite.Contracts.DTOs
+@using WeddingSite.Client.Services.Abstractions
+@inject ISnackbar Snackbar
+@inject IDataService DataService
+
+<AuthorizeView Policy="Admin">
+    <Authorized>
+        @if (_loading)
+        {
+            <p>Loading...</p>
+        }
+        else
+        {
+            <p>Out of @_stats.Total people, <MudText Inline="true" Color="Color.Success">@_stats.TotalComing</MudText> have RSVP'd coming</p>
+            <p><MudText Inline="true" Color="Color.Error">@_stats.TotalNotComing</MudText> have RSVP'd not coming</p>
+            <p>and <MudText Inline="true" Color="Color.Warning">@_stats.TotalYetToRsvp</MudText> have yet to RSVP.</p>
+            
+            <br/>
+            
+            <MudPaper Class="pa-4 mb-4">
+                <MudStack Spacing="2">
+                    <MudButton OnClick="OnExpandComingClick">@(_expandComing ? "Collapse " : "Expand ")Coming</MudButton>
+                    <MudDivider />
+                    <MudCollapse Expanded="_expandComing">
+                        @string.Join(", ", _stats.ComingNames)
+                    </MudCollapse>
+                </MudStack>
+            </MudPaper>
+            
+            <MudPaper Class="pa-4 mb-4">
+                <MudStack Spacing="2">
+                    <MudButton OnClick="OnExpandNotComingClick">@(_expandNotComing ? "Collapse " : "Expand ")Not Coming</MudButton>
+                    <MudDivider />
+                    <MudCollapse Expanded="_expandNotComing">
+                        @string.Join(", ", _stats.NotComingNames)
+                    </MudCollapse>
+                </MudStack>
+            </MudPaper>
+            
+            <MudPaper Class="pa-4 mb-4">
+                <MudStack Spacing="2">
+                    <MudButton OnClick="OnExpandYetToClick">@(_expandYetTo ? "Collapse " : "Expand ")Yet to RSVP</MudButton>
+                    <MudDivider />
+                    <MudCollapse Expanded="_expandYetTo">
+                        @string.Join(", ", _stats.YetToRsvpNames)
+                    </MudCollapse>
+                </MudStack>
+            </MudPaper>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>You aren't meant to see this!</p>
+        <MudButton Color="Color.Info" Variant="Variant.Outlined" Href="/about" >Back to About</MudButton>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool _loading = true;
+
+    private RsvpStatistics _stats = new();
+
+    private bool _expandComing = false;
+    private bool _expandNotComing = false;
+    private bool _expandYetTo = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var statsResult = await DataService.GetGuestStatisticsAsync();
+
+        _stats = statsResult.Match(
+            m => m,
+            err =>
+            {
+                Snackbar.Add(err.Message, Severity.Error);
+                return new RsvpStatistics();
+            });
+
+        _loading = false;
+
+        await base.OnInitializedAsync();
+    }
+
+    private void OnExpandComingClick()
+    {
+        _expandComing = !_expandComing;
+    }
+    
+    private void OnExpandNotComingClick()
+    {
+        _expandNotComing = !_expandNotComing;
+    }
+    
+    private void OnExpandYetToClick()
+    {
+        _expandYetTo = !_expandYetTo;
+    }
+}
